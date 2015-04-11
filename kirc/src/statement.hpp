@@ -10,6 +10,8 @@ namespace KIR
 	public:
 		size_t loc;
 	};
+
+	
 }
 
 #endif
