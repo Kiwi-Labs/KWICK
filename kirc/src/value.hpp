@@ -1,13 +1,14 @@
-#include "type.hpp"
-
 #ifndef KIWI_VALUE_HPP
 #define KIWI_VALUE_HPP
+
+#include "type.hpp"
 
 namespace KIR
 {
 	class Value
 	{
-		virtual Type getType() = 0;
+	public:
+		virtual Type* getType() = 0;
 	};
 }
 

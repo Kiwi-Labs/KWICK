@@ -1,10 +1,10 @@
+#ifndef KIWI_MODULE_HPP
+#define KIWI_MODULE_HPP
+
 #include <string>
 #include <vector>
 
 #include "function.hpp"
-
-#ifndef KIWI_MODULE_HPP
-#define KIWI_MODULE_HPP
 
 namespace KIR
 {

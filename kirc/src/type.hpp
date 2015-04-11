@@ -1,10 +1,10 @@
+#ifndef KIWI_TYPE_HPP
+#define KIWI_TYPE_HPP
+
 #include <vector>
 #include <stdio.h>
 
 #include "objdef.hpp"
-
-#ifndef KIWI_TYPE_HPP
-#define KIWI_TYPE_HPP
 
 namespace KIR
 {
@@ -209,11 +209,6 @@ namespace KIR
 			else
 				return false;
 		}
-	};
-
-	class ClosureType: public FunctionType
-	{
-		ClosureType(TupleType _args, TupleType _rets) : FunctionType(_args, _rets) {}
 	};
 }
 
