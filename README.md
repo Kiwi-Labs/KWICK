@@ -1,2 +1,2 @@
-# kwick
-KiWi Initial Compiler for Kiwi
+# KWIRC
+KiWi Intermediate Representation Compiler
