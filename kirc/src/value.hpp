@@ -5,6 +5,7 @@
 
 namespace KIR
 {
+	class Type;
 	class Value
 	{
 	public:

@@ -1,38 +1,55 @@
 #ifndef KIWI_BLOCK_HPP
 #define KIWI_BLOCK_HPP
 
-#include "symbol.hpp"
+#include <iostream>
+
 #include "statement.hpp"
+#include "symbol.hpp"
 
 namespace KIR
 {
 	class Block: public Statement
 	{
+		Block* parent;
 		std::string name;
-		SymbolTable& symtab;
-
-		std::vector<Statement*> statements;
+		SymbolTable* symtab;
+		Block() {}
 	public:
-		Block(std::string _name) : name(_name)
-		{
-			symtab = new SymbolTable(name);
-		}
+		std::vector<Statement*> statements;
+		Block(Block* _parent, std::string _name = "") : parent(_parent), name(_name), symtab(new SymbolTable(_parent->symtab)) {}
+		Block(std::string _name) : name(_name), parent(NULL), symtab(new SymbolTable()) {}
 		~Block()
 		{
-			statements.clear();
+			deleteAll(statements);
+			delete symtab;
 		}
 		std::string getName() { return name; }
-		void pushStatement(Statement* statement)
+		void pushStatement(Statement* statement);
+		void insertStatement(Statement* statement, size_t loc);
+		bool validate()
 		{
-			statements.push_back(statement);
-		}
-		void insertStatement(Statement* statement, const size_t loc)
-		{
-			statements.insert(statements.begin()+loc, statement);
-			for (std::vector<Statement*>::iterator it = statements.begin()+loc+1; it < statements.end(); it++)
+			for (auto it = statements.begin(); it < statements.end(); it++)
 			{
-				(*it)->loc++;
+				if (!(*it)->validate()) return false;
 			}
+			return true;
+		}
+		Block* clone()
+		{
+			Block* res = new Block();
+			res->parent = this->parent;
+			res->name = this->name;
+			res->symtab = this->symtab;
+			return res;
+		}
+		std::string toString()
+		{
+			std::stringstream out;
+			for (auto it = this->statements.begin(); it < this->statements.end(); it++)
+			{
+				out << (*it)->toString() << std::endl;
+			}
+			return out.str();
 		}
 	};
 }

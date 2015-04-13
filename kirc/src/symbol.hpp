@@ -7,6 +7,7 @@
 
 #include "value.hpp"
 #include "type.hpp"
+#include "utils.hpp"
 
 namespace KIR
 {
@@ -26,41 +27,22 @@ namespace KIR
 
 	class Block;
 
-	class SymbolTable
+	class SymbolTable : public Stringable
 	{
 		std::unordered_map<SymbolIdentifier, Symbol*> map;
-		Block* parent;
+		std::vector<SymbolTable*> parents;
+		void setPredefinedSymbol(SymbolIdentifier id, Symbol* sym);
 	public:
-		SymbolTable(Block* _parent) : parent(_parent) {}
+		SymbolTable() {}
+		SymbolTable(SymbolTable* _parent) : parents({ _parent }) {}
 		~SymbolTable()
 		{
 			map.clear();
 		}
-		bool containsSymbol(SymbolIdentifier id) { return map.count(id); }
-		Symbol* getSymbol(SymbolIdentifier id) { return map[id]; }
-		void setSymbol(SymbolIdentifier id, Symbol* sym);
-	};
-
-	class Binding: public Value, public Symbol
-	{
-		Type* type;
-		const std::string& ident;
-		const size_t& loc; // To prevent forward reference of bindings.
-		const bool mut; // Mutable?
-		Binding(Type* _type, const std::string& _ident, const size_t& _loc, const bool _mut) : type(_type), ident(_ident), loc(_loc), mut(_mut) {}
-	public:
-		Type* getType()
-		{
-			return this->type;
-		}
-		const std::string getIdentifier()
-		{
-			return this->ident;
-		}
-		const size_t getBlockRelativeLocation()
-		{
-			return this->loc;
-		}
+		bool containsSymbol(SymbolIdentifier id);
+		Symbol* getSymbol(SymbolIdentifier id);
+		bool setSymbol(SymbolIdentifier id, Symbol* sym);
+		std::string toString();
 	};
 }
 
