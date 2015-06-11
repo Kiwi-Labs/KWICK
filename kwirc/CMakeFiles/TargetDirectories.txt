@@ -1,0 +1,2 @@
+/Users/sean/Projects/KWICK/kirc/CMakeFiles/KIRC_run.dir
+/Users/sean/Projects/KWICK/kirc/CMakeFiles/KIRC.dir
