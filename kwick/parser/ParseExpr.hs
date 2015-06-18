@@ -15,6 +15,7 @@ import Syntax
 import ParseIdent
 import ParseQuoted
 import ParseType
+import ParseSpace
 
 parseStringLitExpr :: Parse Char Expr
 parseStringLitExpr = greedy $ StringLitExpr <$> parseQuotedString '"'
@@ -28,9 +29,9 @@ parseRealLitExpr = greedy $ RealLitExpr <$> parseFloating
 parseParenthesizedExpr :: Parse Char Expr
 parseParenthesizedExpr = greedy $ do
 	lit '('
-	optional space
+	optional kspace
 	expr <- parseExpr
-	optional space
+	optional kspace
 	lit ')'
 	return expr
 
@@ -46,11 +47,11 @@ parseArgument :: Parse Char Argument
 parseArgument = greedy $ do
 	maybeName <- optional $ do
 		lit '#'
-		optional space
+		optional kspace
 		name <- parseLocalIdent
-		optional space
+		optional kspace
 		lit ':'
-		optional space
+		optional kspace
 		return name
 	expr <- parseExpr
 	return $ Argument maybeName expr
@@ -58,24 +59,24 @@ parseArgument = greedy $ do
 parseArgumentList :: Parse Char [Argument]
 parseArgumentList = do
 	lit '('
-	optional space
-	results <- commaSeparated parseArgument
-	optional space
+	optional kspace
+	results <- kcommaSeparated parseArgument
+	optional kspace
 	lit ')'
 	return results
 
 parseAccessorExpr :: Expr -> Parse Char Expr
 parseAccessorExpr expr = greedy $ do
-	optional space
+	optional kspace
 	lit '.'
-	optional space
+	optional kspace
 	fieldName <- parseUnresolvedIdent
 	args <- (fromMaybe []) <$> optional parseArgumentList
 	return $ AccessorExpr expr fieldName args
 
 parseFunctionCallExpr :: Expr -> Parse Char Expr
 parseFunctionCallExpr expr = greedy $ do
-	optional space
+	optional kspace
 	args <- parseArgumentList
 	return $ CallExpr expr args
 
@@ -87,7 +88,7 @@ parseSuffixExpr = chainNest parseAtomicExpr
 prefixParse :: (Expr -> Expr) -> Char -> Parse Char Expr
 prefixParse f char = greedy $ do
 	lit char
-	optional space
+	optional kspace
 	expr <- parseCoreExpr
 	return $ f expr
 
@@ -255,9 +256,9 @@ parseBinopSequence :: Parse Char Expr
 parseBinopSequence = do
 	firstTerm <- parseCoreExpr
 	restTerms <- many $ do
-		optional space
+		optional kspace
 		op <- parseBinaryOperator
-		optional space
+		optional kspace
 		nextTerm <- parseCoreExpr
 		return (op, nextTerm)
 	let grouped = Precedence.precedenceGroup binaryOperatorGrouping firstTerm restTerms
@@ -274,9 +275,9 @@ parsePossibleCastExpr :: Parse Char Expr
 parsePossibleCastExpr = do
 	expr <- parseBinopSequence
 	maybeCastType <- optional $ do
-		optional space
+		optional kspace
 		lit ':'
-		optional space
+		optional kspace
 		parseType
 	return $ case maybeCastType of
 		Just castType -> CastExpr expr castType

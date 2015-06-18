@@ -8,6 +8,7 @@ import Data.Maybe (fromMaybe)
 import Syntax
 import Parse
 import ParseIdent
+import ParseSpace
 
 parseOpaqueType :: Parse Char [Type]
 parseOpaqueType = greedy $ do
@@ -23,9 +24,9 @@ parseTemplateParameterType = greedy $ do
 parseParenthesizedTypes :: Parse Char [Type]
 parseParenthesizedTypes = greedy $ do
 	lit '('
-	optional space
-	types <- commaSeparated parseType
-	optional space
+	optional kspace
+	types <- kcommaSeparated parseType
+	optional kspace
 	lit ')'
 	return types
 
@@ -33,11 +34,11 @@ parseFunctionTypeArg :: Parse Char ArgumentDefInterface
 parseFunctionTypeArg = do
 	maybeName <- optional $ do
 		lit '#'
-		optional space
+		optional kspace
 		name <- parseLocalIdent
-		optional space
+		optional kspace
 		lit ':'
-		optional space
+		optional kspace
 		return name
 	t <- parseType
 	return $ ArgumentDefInterface maybeName t
@@ -45,20 +46,20 @@ parseFunctionTypeArg = do
 parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
 parseFunctionTypeArgs = do
 	lit '('
-	optional space
-	args <- commaSeparated parseFunctionTypeArg
-	optional space
+	optional kspace
+	args <- kcommaSeparated parseFunctionTypeArg
+	optional kspace
 	lit ')'
 	return args
 
 parseFunctionType :: Parse Char [Type]
 parseFunctionType = do
 	lits "func"
-	optional space
+	optional kspace
 	args <- parseFunctionTypeArgs
-	optional space
+	optional kspace
 	lits "->"
-	optional space
+	optional kspace
 	rets <- parseParenthesizedTypes
 	return [FunctionType args rets]
 
@@ -71,13 +72,13 @@ parseAtomicType = choice
 
 parseTemplateType :: [Type] -> Parse Char [Type]
 parseTemplateType types = do
-	optional space
+	optional kspace
 	name <- parseUnresolvedIdent
 	return [TemplateType name types]
 
 unaryKindParser :: (Type -> Type) -> Char -> [Type] -> Parse Char [Type]
 unaryKindParser f char [t] = do
-	optional space
+	optional kspace
 	lit char
 	return [f t]
 unaryKindParser _ _ _ = parseFailure

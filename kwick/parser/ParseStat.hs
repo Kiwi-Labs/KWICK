@@ -10,6 +10,7 @@ import Parse
 import ParseExpr
 import ParseIdent
 import ParseType
+import ParseSpace
 
 parseBindMode :: Parse Char BindMode
 parseBindMode = choice
@@ -17,16 +18,16 @@ parseBindMode = choice
 	,lits "let" >> return LetBinding]
 
 semicolon :: Parse Char ()
-semicolon = optional space >> lit ';' >> return ()
+semicolon = optional kspace >> lit ';' >> return ()
 
 parseBindStat :: Parse Char Stat
 parseBindStat = greedy $ do
 	mode <- parseBindMode
-	space
+	kspace
 	name <- parseLocalIdent
-	optional space
+	optional kspace
 	lit '='
-	optional space
+	optional kspace
 	rhs <- parseExpr
 	semicolon
 	return $ BindStat mode name rhs
@@ -34,23 +35,23 @@ parseBindStat = greedy $ do
 parseNewBindStat :: Parse Char Stat
 parseNewBindStat = greedy $ do
 	lits "new"
-	space
+	kspace
 	name <- parseLocalIdent
-	optional space
+	optional kspace
 	lit ':'
-	optional space
+	optional kspace
 	t <- parseType
 	semicolon
 	return $ NewBindStat name t
 
 parseAssignStat :: Parse Char Stat
 parseAssignStat = greedy $ do
-	lhs <- commaSeparated parseExpr
+	lhs <- kcommaSeparated parseExpr
 	guard $ not $ null lhs
-	optional space
+	optional kspace
 	lit '='
-	optional space
-	rhs <- commaSeparated parseExpr
+	optional kspace
+	rhs <- kcommaSeparated parseExpr
 	guard $ not $ null rhs
 	semicolon
 	return $ AssignStat lhs rhs
@@ -67,57 +68,57 @@ parseBody :: Parse Char [Stat]
 parseBody = greedy $ do
 	lit '{'
 	stats <- many $ greedy $ do
-		optional space
+		optional kspace
 		stat <- parseStat
 		return stat
-	optional space
+	optional kspace
 	lit '}'
 	return stats
 
 parseIfStat :: Parse Char Stat
 parseIfStat = greedy $ do
 	lits "if"
-	space
+	kspace
 	condition <- parseExpr
-	optional space
+	optional kspace
 	thenClause <- parseBody
 	elseIfClauses <- many $ greedy $ do
-		optional space
+		optional kspace
 		lits "else"
-		space
+		kspace
 		lits "if"
-		space
+		kspace
 		elseCondition <- parseExpr
-		optional space
+		optional kspace
 		elseBody <- parseBody
 		return (elseCondition, elseBody)
 	elseClause <- optional $ do
-		optional space
+		optional kspace
 		lits "else"
-		optional space
+		optional kspace
 		parseBody
 	return $ IfStat ((condition, thenClause) : elseIfClauses) elseClause
 
 parseLoopStat :: Parse Char Stat
 parseLoopStat = greedy $ do
 	lits "loop"
-	optional space
+	optional kspace
 	body <- parseBody
 	return $ LoopStat body
 
 parseWhileLoopStat :: Parse Char Stat
 parseWhileLoopStat = greedy $ do
 	lits "while"
-	space
+	kspace
 	condition <- parseExpr
-	optional space
+	optional kspace
 	body <- parseBody
 	return $ WhileLoopStat condition body
 
 parseWhileStat :: Parse Char Stat
 parseWhileStat = greedy $ do
 	lits "while"
-	space
+	kspace
 	condition <- parseExpr
 	semicolon
 	return $ WhileStat condition
@@ -137,8 +138,8 @@ parseContinueStat = greedy $ do
 parseReturnStat :: Parse Char Stat
 parseReturnStat = greedy $ do
 	lits "ret"
-	space
-	vals <- commaSeparated parseExpr
+	kspace
+	vals <- kcommaSeparated parseExpr
 	semicolon
 	return $ ReturnStat vals
 
