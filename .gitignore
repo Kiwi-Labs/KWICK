@@ -1,1 +1,4 @@
-kwick/target
+
+kwick/**/build/
+
+**/.DS_Store
