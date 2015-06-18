@@ -16,6 +16,7 @@ import ParseIdent
 import ParseQuoted
 import ParseType
 import ParseSpace
+import {-# SOURCE #-} ParseStat
 
 parseStringLitExpr :: Parse Char Expr
 parseStringLitExpr = greedy $ StringLitExpr <$> parseQuotedString '"'
@@ -283,4 +284,7 @@ parsePossibleCastExpr = do
 		Just castType -> CastExpr expr castType
 		Nothing -> expr
 
-parseExpr = parsePossibleCastExpr
+parseStatExpr :: Parse Char Expr
+parseStatExpr = StatExpr <$> parseCompoundStat
+
+parseExpr = parseEither parsePossibleCastExpr parseStatExpr

@@ -6,4 +6,4 @@ import ParseType
 import ParseStat
 
 --main = getLine >>= (print . runParse parseStat) >> main
-main = (return "if x > 10 { // hello! \n ret x; }") >>= (print . runParse parseStat)
+main = (return "x = if x > 0 { val x; } else { val -x; };") >>= (print . runParse parseStat)

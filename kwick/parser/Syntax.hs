@@ -43,13 +43,16 @@ data Stat
 	| NewBindStat LocalIdent Type
 	| AssignStat [Expr] [Expr]
 	| CallStat Expr [Argument]
+	| BlockStat [Stat]
 	| IfStat [(Expr, [Stat])] (Maybe [Stat])
 	| LoopStat [Stat]
 	| WhileLoopStat Expr [Stat]
+	| ForLoopStat LocalIdent Expr [Stat]
 	| WhileStat Expr
 	| BreakStat
 	| ContinueStat
 	| ReturnStat [Expr]
+	| ValueStat [Expr]
 	deriving (Show)
 
 data Expr
@@ -63,6 +66,7 @@ data Expr
 	| RealLitExpr Double -- √
 	| StringLitExpr String -- √
 	| CastExpr Expr Type
+	| StatExpr Stat
 	deriving (Show)
 
 data Argument

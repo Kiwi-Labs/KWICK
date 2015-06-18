@@ -1,6 +1,7 @@
 module ParseStat
 	(parseStat
-	,parseBody)
+	,parseBody
+	,parseCompoundStat)
 where
 
 import Control.Monad (guard)
@@ -75,6 +76,9 @@ parseBody = greedy $ do
 	lit '}'
 	return stats
 
+parseBlockStat :: Parse Char Stat
+parseBlockStat = fmap BlockStat parseBody
+
 parseIfStat :: Parse Char Stat
 parseIfStat = greedy $ do
 	lits "if"
@@ -115,6 +119,19 @@ parseWhileLoopStat = greedy $ do
 	body <- parseBody
 	return $ WhileLoopStat condition body
 
+parseForLoopStat :: Parse Char Stat
+parseForLoopStat = greedy $ do
+	lits "for"
+	kspace
+	loopVar <- parseLocalIdent
+	kspace
+	lits "in"
+	kspace
+	iterator <- parseExpr
+	optional kspace
+	body <- parseBody
+	return $ ForLoopStat loopVar iterator body
+
 parseWhileStat :: Parse Char Stat
 parseWhileStat = greedy $ do
 	lits "while"
@@ -143,15 +160,33 @@ parseReturnStat = greedy $ do
 	semicolon
 	return $ ReturnStat vals
 
+parseValueStat :: Parse Char Stat
+parseValueStat = greedy $ do
+	lits "val"
+	kspace
+	vals <- kcommaSeparated parseExpr
+	semicolon
+	return $ ValueStat vals
+
 parseStat = choice
 	[parseBindStat
 	,parseNewBindStat
 	,parseAssignStat
 	,parseCallStat
+	,parseBlockStat
 	,parseIfStat
 	,parseLoopStat
 	,parseWhileLoopStat
+	,parseForLoopStat
 	,parseWhileStat
 	,parseBreakStat
 	,parseContinueStat
-	,parseReturnStat]
+	,parseReturnStat
+	,parseValueStat]
+
+parseCompoundStat = choice
+	[parseBlockStat
+	,parseIfStat
+	,parseLoopStat
+	,parseWhileLoopStat
+	,parseForLoopStat]
