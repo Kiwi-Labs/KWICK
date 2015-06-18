@@ -49,7 +49,7 @@ data Stat
 	| WhileStat Expr
 	| BreakStat
 	| ContinueStat
-	| ReturnStat Expr
+	| ReturnStat [Expr]
 	deriving (Show)
 
 data Expr
