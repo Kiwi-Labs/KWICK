@@ -24,7 +24,7 @@ parseParenthesizedTypes :: Parse Char [Type]
 parseParenthesizedTypes = greedy $ do
 	lit '('
 	optional space
-	types <- delimited (optional space >> lit ',' >> optional space) parseType
+	types <- commaSeparated parseType
 	optional space
 	lit ')'
 	return types
@@ -46,7 +46,7 @@ parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
 parseFunctionTypeArgs = do
 	lit '('
 	optional space
-	args <- delimited (optional space >> lit ',' >> optional space) parseFunctionTypeArg
+	args <- commaSeparated parseFunctionTypeArg
 	optional space
 	lit ')'
 	return args

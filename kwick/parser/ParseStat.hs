@@ -45,12 +45,12 @@ parseNewBindStat = greedy $ do
 
 parseAssignStat :: Parse Char Stat
 parseAssignStat = greedy $ do
-	lhs <- delimited (optional space >> lit ',' >> optional space) parseExpr
+	lhs <- commaSeparated parseExpr
 	guard $ not $ null lhs
 	optional space
 	lit '='
 	optional space
-	rhs <- delimited (optional space >> lit ',' >> optional space) parseExpr
+	rhs <- commaSeparated parseExpr
 	guard $ not $ null rhs
 	semicolon
 	return $ AssignStat lhs rhs
@@ -138,7 +138,7 @@ parseReturnStat :: Parse Char Stat
 parseReturnStat = greedy $ do
 	lits "ret"
 	space
-	vals <- delimited (optional space >> lit ',' >> optional space) parseExpr
+	vals <- commaSeparated parseExpr
 	semicolon
 	return $ ReturnStat vals
 

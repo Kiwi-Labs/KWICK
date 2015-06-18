@@ -59,7 +59,7 @@ parseArgumentList :: Parse Char [Argument]
 parseArgumentList = do
 	lit '('
 	optional space
-	results <- delimited (optional space >> lit ',' >> optional space) parseArgument
+	results <- commaSeparated parseArgument
 	optional space
 	lit ')'
 	return results

@@ -27,7 +27,8 @@ module Parse
 	
 	,space
 	,parseInt
-	,parseFloating)
+	,parseFloating
+	,commaSeparated)
 where
 
 import Control.Monad
@@ -229,3 +230,6 @@ parseFloating = do
 	integerPart <- greedyMany1 $ litCond isDigit
 	fractionalPart <- optional $ lit '.' >> (greedyMany1 $ litCond isDigit)
 	return $ read $ integerPart ++ "." ++ (fromMaybe "" fractionalPart)
+
+commaSeparated :: Parse Char a -> Parse Char [a]
+commaSeparated = delimited (optional space >> lit ',' >> optional space)
