@@ -3,16 +3,16 @@
 
 #include <iostream>
 
-#include "Utils/MemoryContext.hpp"
-
 namespace KIR
 {
-	class KIRObject
+	template<typename T, typename U> struct MemoryContext;
+
+	class Object
 	{
 	protected:
-		virtual ~KIRObject() {}
-		template<typename T>
-		friend struct MemoryContext<T>;
+		virtual ~Object() {}
+		template<typename T, typename U>
+		friend struct MemoryContext;
 	};
 }
 

@@ -1,34 +1,27 @@
 #ifndef KIWI_CONTEXT_CPP
 #define KIWI_CONTEXT_CPP
 
+#include <stack>
+
 #include "Context.hpp"
 
 namespace KIR
 {
-	__thread bool kir_cvalid = false;
-	__thread KIRContext* kir_cctx = nullptr;
+	thread_local std::stack<Context*> kir_cctx;
 
-	KIRContext::~KIRContext()
-	{
-		if (kir_cctx == this) kir_cvalid = false;
-	}
+	Context::Context() { kir_cctx.push(this); }
+	Context::~Context() { kir_cctx.pop(); }
 
-	KIRContext& getContext()
+	Context& getContext()
 	{
-		std::cout << "Is context valid? " << (kir_cvalid ? "true" : "false") << std::endl;
-		assert(kir_cvalid);
-		return *kir_cctx;
-	}
-
-	void setContext(KIRContext& _kir_cctx)
-	{
-		kir_cctx = &_kir_cctx;
-		kir_cvalid = true;
+		std::cout << "Is context valid? " << (isContextValid() ? "true" : "false") << std::endl;
+		assert(isContextValid());
+		return *kir_cctx.top();
 	}
 
 	bool isContextValid()
 	{
-		return kir_cvalid;
+		return kir_cctx.top() != nullptr;
 	}
 }
 

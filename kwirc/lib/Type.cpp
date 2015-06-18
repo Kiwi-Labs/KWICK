@@ -8,35 +8,35 @@
 
 namespace KIR
 {
-	Type::Type(Kind _kir_kind) : kir_kind(_kir_kind) {}
+	Type::Type(Kind _kir_kind, Subkind _kir_subkind) : kir_kind(_kir_kind), kir_subkind(_kir_subkind) {}
 
 	Type* Type::getVoidType()
 	{
-		KIRContext& k_ctx = getContext();
+		Context& k_ctx = getContext();
 		MemoryContext<Type>& m_ctx = k_ctx.t_mctx;
 		return m_ctx.add(new Type(Kind::Void));
 	}
-	Type* Type::getPtrType(Type* kir_elem_t) { return getContext().t_mctx.add(new PointerType(kir_elem_t)); }
+	Type* Type::getPtrType(Type* kir_elem_t) { return T_MANAGED(new PointerType(kir_elem_t)); }
 	Type* Type::getBitType() { return T_MANAGED(new Type(Kind::Bit)); }
-	Type* Type::getU8Type() { return T_MANAGED(new Type(Kind::U8)); }
-	Type* Type::getU16Type() { return T_MANAGED(new Type(Kind::U16)); }
-	Type* Type::getU32Type() { return T_MANAGED(new Type(Kind::U32)); }
-	Type* Type::getU64Type() { return T_MANAGED(new Type(Kind::U64)); }
-	Type* Type::getU128Type() { return T_MANAGED(new Type(Kind::U128)); }
-	Type* Type::getI8Type() { return T_MANAGED(new Type(Kind::I8)); }
-	Type* Type::getI16Type() { return T_MANAGED(new Type(Kind::I16)); }
-	Type* Type::getI32Type() { return T_MANAGED(new Type(Kind::I32)); }
-	Type* Type::getI64Type() { return T_MANAGED(new Type(Kind::I64)); }
-	Type* Type::getI128Type() { return T_MANAGED(new Type(Kind::I128)); }
-	Type* Type::getFP32Type() { return T_MANAGED(new Type(Kind::FP32)); }
-	Type* Type::getFP64Type() { return T_MANAGED(new Type(Kind::FP64)); }
-	Type* Type::getFP80Type() { return T_MANAGED(new Type(Kind::FP80)); }
+	Type* Type::getU8Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::U8)); }
+	Type* Type::getU16Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::U16)); }
+	Type* Type::getU32Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::U32)); }
+	Type* Type::getU64Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::U64)); }
+	Type* Type::getU128Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::U128)); }
+	Type* Type::getI8Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::I8)); }
+	Type* Type::getI16Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::I16)); }
+	Type* Type::getI32Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::I32)); }
+	Type* Type::getI64Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::I64)); }
+	Type* Type::getI128Type() { return T_MANAGED(new Type(Kind::Integer, Subkind::I128)); }
+	Type* Type::getFP32Type() { return T_MANAGED(new Type(Kind::Float, Subkind::FP32)); }
+	Type* Type::getFP64Type() { return T_MANAGED(new Type(Kind::Float, Subkind::FP64)); }
+	Type* Type::getFP80Type() { return T_MANAGED(new Type(Kind::Float, Subkind::FP80)); }
 	Type* Type::getTupleType(std::initializer_list<Type*> _init) { return T_MANAGED(new TupleType(_init)); }
 	Type* Type::getTupleType(std::vector<Type*> _init) { return T_MANAGED(new TupleType(_init)); }
 
 	bool operator==(const Type& t0, const Type& t1)
 	{
-		if (t0.kir_kind != t1.kir_kind) return false;
+		if (t0.kir_kind != t1.kir_kind || t0.kir_subkind != t1.kir_subkind) return false;
 		else
 		{
 			switch(t0.kir_kind)

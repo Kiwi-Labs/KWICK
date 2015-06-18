@@ -3,7 +3,7 @@
 
 namespace KIR
 {
-	class Statement : public KIRObject
+	class Statement : public Object
 	{
 
 	};

@@ -1,6 +1,8 @@
 #ifndef KIWI_MEMCTX_HPP
 #define KIWI_MEMCTX_HPP
 
+#include "Utils/Object.hpp"
+
 #include <iostream>
 
 #include <typeinfo>
@@ -12,7 +14,7 @@
 
 namespace KIR
 {
-	template<typename T>
+	template<typename T, typename U = typename std::conditional<std::is_base_of<KIR::Object, T>::value, KIR::Object, T>::type>
 	struct MemoryContext
 	{
 	private:
@@ -32,7 +34,7 @@ namespace KIR
 		{
 			for (T* t_ptr : t_ptrs)
 			{
-				delete t_ptr;
+				delete static_cast<U*>(t_ptr);
 			}
 		}
 		~MemoryContext()

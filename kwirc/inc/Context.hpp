@@ -10,19 +10,26 @@
 #include "Type.hpp"
 #include "Expression.hpp"
 #include "Statement.hpp"
+#include "Function.hpp"
+#include "Identifier.hpp"
 
 namespace KIR
 {
-	struct KIRContext
+	struct Context
 	{
+		Context();
+		~Context();
 		MemoryContext<Type> t_mctx;
 		MemoryContext<Expression> e_mctx;
 		MemoryContext<Statement> s_mctx;
-		~KIRContext();
+		MemoryContext<Function> f_mctx;
+		MemoryContext<Object> obj_mctx;
+		std::unordered_map<Identifier, Function*> named_funcs;
+	private:
+		static void pushContext(Context& _kir_cctx);
 	};
 
-	KIRContext& getContext();
-	void setContext(KIRContext& _kir_cctx);
+	Context& getContext();
 	bool isContextValid();
 }
 
