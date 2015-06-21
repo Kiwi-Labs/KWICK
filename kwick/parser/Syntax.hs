@@ -1,16 +1,5 @@
-module Syntax
-	(UnresolvedIdent (..)
-	,LocalIdent (..)
-	,Type (..)
-	,ArgumentMode (..)
-	,ArgumentDefInterface (..)
-	,ArgumentDef (..)
-	,Dec (..)
-	,BindMode (..)
-	,Stat (..)
-	,Expr (..)
-	,Argument (..))
-where
+-- Everything in this module is exported
+module Syntax where
 
 newtype UnresolvedIdent = UnresolvedIdent [String] deriving (Show)
 
@@ -27,13 +16,26 @@ data Type
 	deriving (Show)
 
 data ArgumentMode = NamedArg | PositionalArg deriving (Show)
-
 data ArgumentDefInterface = ArgumentDefInterface (Maybe LocalIdent) Type deriving (Show)
-
 data ArgumentDef = ArgumentDef ArgumentMode LocalIdent Type deriving (Show)
 
+data Access = Public | Private deriving (Show)
+data GetterAccess = PublicGetter | PrivateGetter deriving (Show)
+data SetterAccess = PublicSetter | PrivateSetter deriving (Show)
+data ConstructorAccess = PublicConstructor | PrivateConstructor deriving (Show)
+data ExtensionAccess = PublicExtension | PrivateExtension deriving (Show)
+data ClassAccess = PublicClass ConstructorAccess ExtensionAccess | PrivateClass deriving (Show)
+data StructCaseAccess = PublicCase ConstructorAccess | PrivateCase deriving (Show)
+
+data FieldContent = FieldInitializer Expr | FieldType Type deriving (Show)
+data Field = Field GetterAccess SetterAccess BindMode LocalIdent FieldContent deriving (Show)
+
+data StructCase = StructCase StructCaseAccess [Field] [(LocalIdent, StructCase)] deriving (Show)
+
 data Dec
-	= FuncDec UnresolvedIdent [ArgumentDef] [Type] [Stat]
+	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
+	| StructDec LocalIdent StructCase
+	| ClassDec ClassAccess
 	deriving (Show)
 
 data BindMode = VarBinding | LetBinding deriving (Show)

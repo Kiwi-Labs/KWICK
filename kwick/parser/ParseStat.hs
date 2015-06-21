@@ -65,16 +65,24 @@ parseCallStat = greedy $ do
 		CallExpr receiver args -> return $ CallStat receiver args
 		_ -> parseFailure
 
-parseBody :: Parse Char [Stat]
-parseBody = greedy $ do
-	lit '{'
-	stats <- many $ greedy $ do
+parseStatList :: Parse Char [Stat]
+parseStatList = greedy $ many $ greedy $ do
 		optional kspace
 		stat <- parseStat
 		return stat
-	optional kspace
-	lit '}'
-	return stats
+
+parseBody :: Parse Char [Stat]
+parseBody = greedy $ parseEither curlyBody doBody where
+	curlyBody = do
+		lit '{'
+		stats <- parseStatList
+		optional kspace
+		lit '}'
+		return stats
+	doBody = do
+		lits "do"
+		kspace
+		parseStatList
 
 parseBlockStat :: Parse Char Stat
 parseBlockStat = fmap BlockStat parseBody

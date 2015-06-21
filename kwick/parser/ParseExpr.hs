@@ -72,6 +72,7 @@ parseAccessorExpr expr = greedy $ do
 	lit '.'
 	optional kspace
 	fieldName <- parseUnresolvedIdent
+	optional kspace
 	args <- (fromMaybe []) <$> optional parseArgumentList
 	return $ AccessorExpr expr fieldName args
 
@@ -81,10 +82,21 @@ parseFunctionCallExpr expr = greedy $ do
 	args <- parseArgumentList
 	return $ CallExpr expr args
 
+parseArrowCallExpr :: Expr -> Parse Char Expr
+parseArrowCallExpr expr = greedy $ do
+	optional kspace
+	lits "->"
+	optional kspace
+	funcName <- parseUnresolvedIdent
+	optional kspace
+	args <- parseArgumentList
+	return $ CallExpr (BindingExpr funcName) $ (Argument Nothing expr) : args
+
 parseSuffixExpr :: Parse Char Expr
 parseSuffixExpr = chainNest parseAtomicExpr
 	[parseAccessorExpr
-	,parseFunctionCallExpr]
+	,parseFunctionCallExpr
+	,parseArrowCallExpr]
 
 prefixParse :: (Expr -> Expr) -> Char -> Parse Char Expr
 prefixParse f char = greedy $ do
