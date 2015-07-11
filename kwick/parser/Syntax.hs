@@ -58,15 +58,15 @@ data Stat
 	deriving (Show)
 
 data Expr
-	= BindingExpr UnresolvedIdent -- √
+	= BindingExpr UnresolvedIdent
 	| RefExpr Expr
 	| AddressOfExpr Expr
 	| DereferenceExpr Expr
 	| CallExpr Expr [Argument]
 	| AccessorExpr Expr UnresolvedIdent [Argument]
-	| IntLitExpr Integer -- √
-	| RealLitExpr Double -- √
-	| StringLitExpr String -- √
+	| IntLitExpr Integer
+	| RealLitExpr Double
+	| StringLitExpr String
 	| CastExpr Expr Type
 	| StatExpr Stat
 	deriving (Show)
