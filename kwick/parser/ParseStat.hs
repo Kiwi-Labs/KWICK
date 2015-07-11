@@ -220,12 +220,7 @@ parseStat = choice
 	,parseNewBindStat
 	,parseAssignStat
 	,parseCallStat
-	,parseBlockStat
-	,parseIfStat
-	,parseLoopStat
-	,parseWhileLoopStat
-	,parseForLoopStat
-	,parseExtractStat
+	,parseCompoundStat
 	,parseWhileStat
 	,parseBreakStat
 	,parseContinueStat
@@ -237,4 +232,5 @@ parseCompoundStat = choice
 	,parseIfStat
 	,parseLoopStat
 	,parseWhileLoopStat
-	,parseForLoopStat]
+	,parseForLoopStat
+	,parseExtractStat]
