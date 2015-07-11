@@ -38,5 +38,5 @@
 
 ### Potential additions
 
-- [ ] Named infix operators, Haskell-style, like `a \`dot\`b`
+- [ ] Named infix operators, Haskell-style, like ``a `dot` b``
 - [ ] Indentation-based strings, where all characters are interpreted literally (no escapes)
