@@ -5,6 +5,7 @@ module ParseStat
 where
 
 import Control.Monad (guard)
+import Data.Maybe (fromMaybe)
 
 import Syntax
 import Parse
@@ -140,6 +141,44 @@ parseForLoopStat = greedy $ do
 	body <- parseBody
 	return $ ForLoopStat loopVar iterator body
 
+parseExtractClause :: Parse Char ExtractClause
+parseExtractClause = greedy $ do
+	lits "extract"
+	kspace
+	bindMode <- fmap (fromMaybe LetBinding) $ optional $ do
+		lits "var"
+		kspace
+		return VarBinding
+	name <- parseLocalIdent
+	possibleExpr <- optional $ do
+		optional kspace
+		lit '='
+		optional kspace
+		parseExpr
+	(possibleExpr', target) <- case possibleExpr of
+		Nothing -> do
+			possibleTarget <- optional $ do
+				optional kspace
+				lit ':'
+				optional kspace
+				parseType
+			let realTarget = case possibleTarget of
+				Nothing -> ExtractFromNullable
+				Just t -> ExtractToType t
+			return (Nothing, realTarget)
+		Just (CastExpr expr t) ->
+			return (Just expr, ExtractToType t)
+		Just expr -> 
+			return (Just expr, ExtractFromNullable)
+	optional kspace
+	body <- parseBody
+	return $ ExtractClause bindMode name possibleExpr' target body
+
+parseExtractStat :: Parse Char Stat
+parseExtractStat = greedy $ do
+	clauses <- delimited1 (optional kspace >> lits "else" >> kspace) parseExtractClause
+	return $ ExtractStat clauses
+
 parseWhileStat :: Parse Char Stat
 parseWhileStat = greedy $ do
 	lits "while"
@@ -186,6 +225,7 @@ parseStat = choice
 	,parseLoopStat
 	,parseWhileLoopStat
 	,parseForLoopStat
+	,parseExtractStat
 	,parseWhileStat
 	,parseBreakStat
 	,parseContinueStat

@@ -4,7 +4,7 @@
 
 ### Missing features
 
-- [ ] Extract statements
+- [X] Extract statements
 - [ ] Lambda expressions
 	- [ ] Long form
 	- [ ] Short form

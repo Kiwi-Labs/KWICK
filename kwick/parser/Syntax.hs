@@ -40,6 +40,11 @@ data Dec
 
 data BindMode = VarBinding | LetBinding deriving (Show)
 
+data ExtractTarget = ExtractToType Type | ExtractFromNullable deriving (Show)
+
+data ExtractClause = ExtractClause BindMode LocalIdent (Maybe Expr) ExtractTarget [Stat]
+	deriving (Show)
+
 data Stat
 	= BindStat BindMode LocalIdent Expr
 	| NewBindStat LocalIdent Type
@@ -50,6 +55,7 @@ data Stat
 	| LoopStat [Stat]
 	| WhileLoopStat Expr [Stat]
 	| ForLoopStat LocalIdent Expr [Stat]
+	| ExtractStat [ExtractClause]
 	| WhileStat Expr
 	| BreakStat
 	| ContinueStat
