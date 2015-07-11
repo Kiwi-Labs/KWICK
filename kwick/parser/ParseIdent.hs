@@ -57,7 +57,7 @@ isLocalIdentChar c = isAlphaNum c
 
 parseNormalLocalIdent :: Parse Char LocalIdent
 parseNormalLocalIdent = greedy $ do
-	name <- (:) <$> (litCond isLocalIdentStartChar) <*> (many $ litCond isLocalIdentChar)
+	name <- greedy $ (:) <$> (litCond isLocalIdentStartChar) <*> (many $ litCond isLocalIdentChar)
 	guard $ Set.notMember name reservedWords
 	return $ LocalIdent name
 
