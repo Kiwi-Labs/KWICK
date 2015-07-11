@@ -18,6 +18,7 @@ data Type
 data ArgumentMode = NamedArg | PositionalArg deriving (Show)
 data ArgumentDefInterface = ArgumentDefInterface (Maybe LocalIdent) Type deriving (Show)
 data ArgumentDef = ArgumentDef ArgumentMode LocalIdent Type deriving (Show)
+data LambdaArgumentDef = LambdaArgumentDef ArgumentMode LocalIdent (Maybe Type) deriving (Show)
 
 data Access = Public | Private deriving (Show)
 data GetterAccess = PublicGetter | PrivateGetter deriving (Show)
@@ -75,6 +76,7 @@ data Expr
 	| StringLitExpr String
 	| CastExpr Expr Type
 	| StatExpr Stat
+	| LambdaExpr [LambdaArgumentDef] (Maybe [Type]) [Stat]
 	deriving (Show)
 
 data Argument

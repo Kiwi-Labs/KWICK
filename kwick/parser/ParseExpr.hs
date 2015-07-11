@@ -36,13 +36,50 @@ parseParenthesizedExpr = greedy $ do
 	lit ')'
 	return expr
 
+parseLambdaArgDef :: Parse Char LambdaArgumentDef
+parseLambdaArgDef = do
+	mode <- parseEither (lit '#' >> optional kspace >> return NamedArg) (return PositionalArg)
+	name <- parseLocalIdent
+	t <- optional $ do
+		optional kspace
+		lit ':'
+		optional kspace
+		parseType
+	return $ LambdaArgumentDef mode name t
+
+parseLongLambdaExpr :: Parse Char Expr
+parseLongLambdaExpr = greedy $ do
+	lits "func"
+	optional kspace
+	args <- fmap (fromMaybe []) $ optional $ do
+		lit '('
+		optional kspace
+		args <- kcommaSeparated parseLambdaArgDef
+		optional kspace
+		lit ')'
+		return args
+	maybeRetTypes <- optional $ do
+		optional kspace
+		lits "->"
+		optional kspace
+		lit '('
+		optional kspace
+		types <- kcommaSeparated parseType
+		optional kspace
+		lit ')'
+		return types
+	optional kspace
+	body <- parseBody
+	return $ LambdaExpr args maybeRetTypes body
+
 parseAtomicExpr :: Parse Char Expr
 parseAtomicExpr = choice
 	[BindingExpr <$> parseUnresolvedIdent
 	,parseIntLitExpr
 	,parseRealLitExpr
 	,parseStringLitExpr
-	,parseParenthesizedExpr]
+	,parseParenthesizedExpr
+	,parseLongLambdaExpr]
 
 parseArgument :: Parse Char Argument
 parseArgument = greedy $ do
