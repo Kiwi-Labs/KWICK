@@ -40,3 +40,8 @@
 
 - [ ] Named infix operators, Haskell-style, like ``a `dot` b``
 - [ ] Indentation-based strings, where all characters are interpreted literally (no escapes)
+
+### Stylistic cleanup
+
+- [ ] Normalize use of `fmap` vs `<$>` vs "bind-and-return style" for mapping functions over single parse results
+- [ ] Normalize default parse results.  Some situations use `optional` and proceed to check for Nothing and replace it with a default value, either using `fromMaybe` or an explicit `case`.  Other situations use the `parseEither pat (return default)` pattern.
