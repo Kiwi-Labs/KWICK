@@ -79,6 +79,38 @@ parseFuncDec = greedy $ do
 	body <- parseBody
 	return $ FuncDec access name args retTypes body
 
+parseSpecialArg :: Parse Char SpecialArgument
+parseSpecialArg = greedy $ do
+	lit '('
+	optional kspace
+	name <- parseLocalIdent
+	optional kspace
+	lit ':'
+	optional kspace
+	t <- parseType
+	optional kspace
+	lit ')'
+	return $ SpecialArgument name t
+
+parseGetterDec :: Parse Char Dec
+parseGetterDec = greedy $ do
+	access <- parseAccessModifier
+	lits "getter"
+	optional kspace
+	receiver <- parseSpecialArg
+	optional kspace
+	lit '.'
+	optional kspace
+	name <- parseUnresolvedIdent
+	args <- fmap (fromMaybe []) $ optional (optional kspace >> parseArgDefList)
+	optional kspace
+	lits "->"
+	optional kspace
+	t <- parseType
+	optional kspace
+	body <- parseBody
+	return $ GetterDec access name receiver args t body
+
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do
 	rawOptions <- parseComplexAccessModifier
@@ -176,4 +208,5 @@ parseStructDec = greedy $ do
 parseDec :: Parse Char Dec
 parseDec = choice
 	[parseFuncDec
-	,parseStructDec]
+	,parseStructDec
+	,parseGetterDec]

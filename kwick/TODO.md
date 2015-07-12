@@ -10,7 +10,7 @@
 	- [X] Short form
 - [ ] Functions
 	- [X] Standard functions
-	- [ ] Getters
+	- [X] Getters
 	- [ ] Setters
 		- [ ] Constructive/destructive distinction
 	- [ ] Reffers (?)

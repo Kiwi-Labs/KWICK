@@ -33,10 +33,15 @@ data Field = Field GetterAccess SetterAccess BindMode LocalIdent FieldContent de
 
 data StructCase = StructCase StructCaseAccess [Field] [(LocalIdent, StructCase)] deriving (Show)
 
+data SetterMode = DestructiveSetter | ConstructiveSetter deriving (Show)
+
+data SpecialArgument = SpecialArgument LocalIdent Type deriving (Show)
+
 data Dec
 	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
 	| StructDec LocalIdent StructCase
-	| ClassDec ClassAccess
+	| GetterDec Access UnresolvedIdent SpecialArgument [ArgumentDef] Type [Stat]
+	| SetterDec Access SetterMode UnresolvedIdent SpecialArgument [ArgumentDef] Type [Stat]
 	deriving (Show)
 
 data BindMode = VarBinding | LetBinding deriving (Show)
