@@ -32,6 +32,14 @@
 - [ ] Static arguments
 	- [ ] In declarations/definitions
 	- [ ] In call expressions
+- [ ] Core data structure type shorthand
+	- [ ] Lists: `Int[]`
+	- [ ] Dictionaries: `Int[String]` (?)
+	- [ ] Sets: `Int{}` (?)
+- [ ] Core data structure literals
+	- [ ] Lists: `[1, 2, 3]`
+	- [ ] Dictionaries: `{"hello": 1, "world": 2, "foo": 3}`
+	- [ ] Sets: `{1, 2, 3}` (?)
 
 ### Planned modifications / fixes
 
