@@ -48,14 +48,7 @@ parseLambdaArgDef = do
 	return $ LambdaArgumentDef mode name t
 
 parseLambdaArgs :: Parse Char [LambdaArgumentDef]
-parseLambdaArgs = greedy $ fmap (fromMaybe []) $ optional $ do
-	lit '('
-	optional kspace
-	args <- kcommaSeparated parseLambdaArgDef
-	optional kspace
-	lit ')'
-	return args
-	
+parseLambdaArgs = greedy $ fmap (fromMaybe []) $ optional $ kparenthesized parseLambdaArgDef
 
 parseLongLambdaExpr :: Parse Char Expr
 parseLongLambdaExpr = greedy $ do
@@ -66,12 +59,7 @@ parseLongLambdaExpr = greedy $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		lit '('
-		optional kspace
-		types <- kcommaSeparated parseType
-		optional kspace
-		lit ')'
-		return types
+		kparenthesized parseType
 	optional kspace
 	body <- parseBody
 	return $ LambdaExpr args maybeRetTypes body
@@ -109,13 +97,7 @@ parseArgument = greedy $ do
 	return $ Argument maybeName expr
 
 parseArgumentList :: Parse Char [Argument]
-parseArgumentList = do
-	lit '('
-	optional kspace
-	results <- kcommaSeparated parseArgument
-	optional kspace
-	lit ')'
-	return results
+parseArgumentList = kparenthesized parseArgument
 
 parseAccessorExpr :: Expr -> Parse Char Expr
 parseAccessorExpr expr = greedy $ do

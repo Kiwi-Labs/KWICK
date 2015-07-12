@@ -60,13 +60,7 @@ parseArgDef = greedy $ do
 	return $ ArgumentDef mode name t
 
 parseArgDefList :: Parse Char [ArgumentDef]
-parseArgDefList = greedy $ do
-	lit '('
-	optional kspace
-	args <- kcommaSeparated parseArgDef
-	optional kspace
-	lit ')'
-	return args
+parseArgDefList = kparenthesized parseArgDef
 
 parseFuncDec :: Parse Char Dec
 parseFuncDec = greedy $ do
@@ -80,12 +74,7 @@ parseFuncDec = greedy $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		lit '('
-		optional kspace
-		types <- kcommaSeparated parseType
-		optional kspace
-		lit ')'
-		return types
+		kparenthesized parseType
 	optional kspace
 	body <- parseBody
 	return $ FuncDec access name args retTypes body

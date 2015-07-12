@@ -22,13 +22,7 @@ parseTemplateParameterType = greedy $ do
 	return [TemplateParameterType name]
 
 parseParenthesizedTypes :: Parse Char [Type]
-parseParenthesizedTypes = greedy $ do
-	lit '('
-	optional kspace
-	types <- kcommaSeparated parseType
-	optional kspace
-	lit ')'
-	return types
+parseParenthesizedTypes = kparenthesized parseType
 
 parseFunctionTypeArg :: Parse Char ArgumentDefInterface
 parseFunctionTypeArg = do
@@ -44,13 +38,7 @@ parseFunctionTypeArg = do
 	return $ ArgumentDefInterface maybeName t
 
 parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
-parseFunctionTypeArgs = do
-	lit '('
-	optional kspace
-	args <- kcommaSeparated parseFunctionTypeArg
-	optional kspace
-	lit ')'
-	return args
+parseFunctionTypeArgs = kparenthesized parseFunctionTypeArg
 
 parseFunctionType :: Parse Char [Type]
 parseFunctionType = do

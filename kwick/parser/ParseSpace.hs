@@ -1,6 +1,7 @@
 module ParseSpace
 	(kspace
-	,kcommaSeparated)
+	,kcommaSeparated
+	,kparenthesized)
 where
 
 import Parse
@@ -20,3 +21,12 @@ kspace = greedy $ do
 
 kcommaSeparated :: Parse Char a -> Parse Char [a]
 kcommaSeparated = delimited (optional kspace >> lit ',' >> optional kspace)
+
+kparenthesized :: Parse Char a -> Parse Char [a]
+kparenthesized p = greedy $ do
+	lit '('
+	optional kspace
+	content <- kcommaSeparated p
+	optional kspace
+	lit ')'
+	return content

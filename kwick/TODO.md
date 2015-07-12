@@ -49,4 +49,4 @@
 
 - [ ] Normalize use of `fmap` vs `<$>` vs "bind-and-return style" for mapping functions over single parse results
 - [ ] Normalize default parse results.  Some situations use `optional` and proceed to check for Nothing and replace it with a default value, either using `fromMaybe` or an explicit `case`.  Other situations use the `parseEither pat (return default)` pattern.
-- [ ] Factor out parenthesized comma-separated lists as their own combinator
+- [X] Factor out parenthesized comma-separated lists as their own combinator
