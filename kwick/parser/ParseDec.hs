@@ -111,6 +111,29 @@ parseGetterDec = greedy $ do
 	body <- parseBody
 	return $ GetterDec access name receiver args t body
 
+parseSetterDec :: Parse Char Dec
+parseSetterDec = greedy $ do
+	access <- parseAccessModifier
+	setterMode <- parseEither
+		(lits "constr" >> return ConstructiveSetter)
+		(lits "destr"  >> return DestructiveSetter)
+	kspace
+	lits "setter"
+	optional kspace
+	receiver <- parseSpecialArg
+	optional kspace
+	lit '.'
+	optional kspace
+	name <- parseUnresolvedIdent
+	args <- fmap (fromMaybe []) $ optional (optional kspace >> parseArgDefList)
+	optional kspace
+	lit '='
+	optional kspace
+	newValArg <- parseSpecialArg
+	optional kspace
+	body <- parseBody
+	return $ SetterDec access setterMode name receiver args newValArg body
+
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do
 	rawOptions <- parseComplexAccessModifier
@@ -209,4 +232,5 @@ parseDec :: Parse Char Dec
 parseDec = choice
 	[parseFuncDec
 	,parseStructDec
-	,parseGetterDec]
+	,parseGetterDec
+	,parseSetterDec]

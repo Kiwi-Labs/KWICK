@@ -41,7 +41,7 @@ data Dec
 	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
 	| StructDec LocalIdent StructCase
 	| GetterDec Access UnresolvedIdent SpecialArgument [ArgumentDef] Type [Stat]
-	| SetterDec Access SetterMode UnresolvedIdent SpecialArgument [ArgumentDef] Type [Stat]
+	| SetterDec Access SetterMode UnresolvedIdent SpecialArgument [ArgumentDef] SpecialArgument [Stat]
 	deriving (Show)
 
 data BindMode = VarBinding | LetBinding deriving (Show)
