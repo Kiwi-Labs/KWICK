@@ -62,6 +62,13 @@ parseArgDef = greedy $ do
 parseArgDefList :: Parse Char [ArgumentDef]
 parseArgDefList = kparenthesized parseArgDef
 
+parseRetTypes :: Parse Char [Type]
+parseRetTypes = fmap (fromMaybe []) $ greedy $ optional $ do
+		optional kspace
+		lits "->"
+		optional kspace
+		kparenthesized parseType
+
 parseFuncDec :: Parse Char Dec
 parseFuncDec = greedy $ do
 	access <- parseAccessModifier
@@ -70,11 +77,7 @@ parseFuncDec = greedy $ do
 	name <- parseUnresolvedIdent
 	optional kspace
 	args <- parseArgDefList
-	retTypes <- fmap (fromMaybe []) $ greedy $ optional $ do
-		optional kspace
-		lits "->"
-		optional kspace
-		kparenthesized parseType
+	retTypes <- parseRetTypes
 	optional kspace
 	body <- parseBody
 	return $ FuncDec access name args retTypes body
@@ -133,6 +136,31 @@ parseSetterDec = greedy $ do
 	optional kspace
 	body <- parseBody
 	return $ SetterDec access setterMode name receiver args newValArg body
+
+parseMethodDec :: Parse Char Dec
+parseMethodDec = greedy $ do
+	access <- parseAccessModifier
+	lits "method"
+	kspace
+	name <- parseUnresolvedIdent
+	optional kspace
+	lit '('
+	optional kspace
+	lits "dynamic"
+	kspace
+	dynArg <- parseArgDef
+	mainArgs <- fmap (fromMaybe []) $ optional $ greedy $ do
+		optional kspace
+		lit ','
+		optional kspace
+		kcommaSeparated parseArgDef
+	optional kspace
+	lit ')'
+	retTypes <- parseRetTypes
+	optional kspace
+	body <- parseBody
+	return $ MethodDec access name dynArg mainArgs retTypes body
+	
 
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do
@@ -233,4 +261,5 @@ parseDec = choice
 	[parseFuncDec
 	,parseStructDec
 	,parseGetterDec
-	,parseSetterDec]
+	,parseSetterDec
+	,parseMethodDec]
