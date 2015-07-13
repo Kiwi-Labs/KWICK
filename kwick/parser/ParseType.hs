@@ -1,5 +1,6 @@
 module ParseType
-	(parseType)
+	(parseType
+	,parseArgDefInterface)
 where
 
 import Control.Applicative ((<$>), (<*>))
@@ -24,8 +25,8 @@ parseTemplateParameterType = greedy $ do
 parseParenthesizedTypes :: Parse Char [Type]
 parseParenthesizedTypes = kparenthesized parseType
 
-parseFunctionTypeArg :: Parse Char ArgumentDefInterface
-parseFunctionTypeArg = do
+parseArgDefInterface :: Parse Char ArgumentDefInterface
+parseArgDefInterface = do
 	maybeName <- optional $ do
 		lit '#'
 		optional kspace
@@ -38,7 +39,7 @@ parseFunctionTypeArg = do
 	return $ ArgumentDefInterface maybeName t
 
 parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
-parseFunctionTypeArgs = kparenthesized parseFunctionTypeArg
+parseFunctionTypeArgs = kparenthesized parseArgDefInterface
 
 parseFunctionType :: Parse Char [Type]
 parseFunctionType = do

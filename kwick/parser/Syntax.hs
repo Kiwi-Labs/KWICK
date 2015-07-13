@@ -38,6 +38,12 @@ data SetterMode = DestructiveSetter | ConstructiveSetter deriving (Show)
 
 data SpecialArgument = SpecialArgument LocalIdent Type deriving (Show)
 
+data ProtocolRequirement
+	= FuncRequirement UnresolvedIdent [ArgumentDefInterface] [Type]
+	| GetterRequirement UnresolvedIdent Type [ArgumentDefInterface] Type
+	| SetterRequirement (Maybe SetterMode) UnresolvedIdent Type [ArgumentDefInterface] Type
+	deriving (Show)
+
 data Dec
 	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
 	| StructDec StructMode LocalIdent StructCase
@@ -57,6 +63,7 @@ data Dec
 		SpecialArgument
 		[Stat]
 	| MethodDec Access UnresolvedIdent ArgumentDef [ArgumentDef] [Type] [Stat]
+	| ProtocolDec Access LocalIdent [LocalIdent]  [ProtocolRequirement]
 	deriving (Show)
 
 data BindMode = VarBinding | LetBinding deriving (Show)

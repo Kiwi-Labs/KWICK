@@ -114,13 +114,18 @@ parseGetterDec = greedy $ do
 	body <- parseBody
 	return $ GetterDec access name receiver args t body
 
-parseSetterDec :: Parse Char Dec
-parseSetterDec = greedy $ do
-	access <- parseAccessModifier
-	setterMode <- parseEither
+parseSetterMode :: Parse Char SetterMode
+parseSetterMode = greedy $ do
+	mode <- parseEither
 		(lits "constr" >> return ConstructiveSetter)
 		(lits "destr"  >> return DestructiveSetter)
 	kspace
+	return mode
+
+parseSetterDec :: Parse Char Dec
+parseSetterDec = greedy $ do
+	access <- parseAccessModifier
+	setterMode <- parseSetterMode
 	lits "setter"
 	optional kspace
 	receiver <- parseSpecialArg
@@ -160,7 +165,6 @@ parseMethodDec = greedy $ do
 	optional kspace
 	body <- parseBody
 	return $ MethodDec access name dynArg mainArgs retTypes body
-	
 
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do
@@ -257,10 +261,90 @@ parseStructDec = greedy $ do
 	(fields, subCases) <- parseStructCaseBody
 	return $ StructDec mode name $ StructCase access fields subCases
 
+parseFuncReq :: Parse Char ProtocolRequirement
+parseFuncReq = greedy $ do
+	lits "func"
+	kspace
+	name <- parseUnresolvedIdent
+	optional kspace
+	args <- kparenthesized parseArgDefInterface
+	retTypes <- parseRetTypes
+	semicolon
+	return $ FuncRequirement name args retTypes
+
+parseOptArgInterfaces :: Parse Char [ArgumentDefInterface]
+parseOptArgInterfaces =
+	fmap (fromMaybe []) $ optional $ optional kspace >> kparenthesized parseArgDefInterface
+
+parseGetterReq :: Parse Char ProtocolRequirement
+parseGetterReq = greedy $ do
+	lits "getter"
+	kspace
+	lit '('
+	optional kspace
+	receiver <- parseType
+	optional kspace
+	lit ')'
+	optional kspace
+	lit '.'
+	optional kspace
+	name <- parseUnresolvedIdent
+	args <- parseOptArgInterfaces
+	optional kspace
+	lits "->"
+	optional kspace
+	retType <- parseType
+	semicolon
+	return $ GetterRequirement name receiver args retType
+
+parseSetterReq :: Parse Char ProtocolRequirement
+parseSetterReq = greedy $ do
+	mode <- optional $ parseSetterMode
+	lits "setter"
+	kspace
+	lit '('
+	optional kspace
+	receiver <- parseType
+	optional kspace
+	lit ')'
+	optional kspace
+	lit '.'
+	optional kspace
+	name <- parseUnresolvedIdent
+	args <- parseOptArgInterfaces
+	optional kspace
+	lit '='
+	optional kspace
+	t <- parseType
+	semicolon
+	return $ SetterRequirement mode name receiver args t
+
+parseProtocolReq :: Parse Char ProtocolRequirement
+parseProtocolReq = greedy $ choice
+	[parseFuncReq
+	,parseGetterReq
+	,parseSetterReq]
+
+parseProtocolDec :: Parse Char Dec
+parseProtocolDec = greedy $ do
+	access <- parseAccessModifier
+	lits "protocol"
+	kspace
+	name <- parseLocalIdent
+	optional kspace
+	params <- kparenthesized $ lit '$' >> parseLocalIdent
+	optional kspace
+	lit '{'
+	requirements <- many $ optional kspace >> parseProtocolReq
+	optional kspace
+	lit '}'
+	return $ ProtocolDec access name params requirements
+
 parseDec :: Parse Char Dec
 parseDec = choice
 	[parseFuncDec
 	,parseStructDec
 	,parseGetterDec
 	,parseSetterDec
-	,parseMethodDec]
+	,parseMethodDec
+	,parseProtocolDec]
