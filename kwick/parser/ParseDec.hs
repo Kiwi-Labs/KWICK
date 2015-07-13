@@ -67,7 +67,7 @@ parseRetTypes = fmap (fromMaybe []) $ greedy $ optional $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		kparenthesized parseType
+		kcommaSeparated parseType
 
 parseFuncDec :: Parse Char Dec
 parseFuncDec = greedy $ do
