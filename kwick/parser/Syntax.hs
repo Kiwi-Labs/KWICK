@@ -31,6 +31,7 @@ data StructCaseAccess = PublicCase ConstructorAccess | PrivateCase deriving (Sho
 data FieldContent = FieldInitializer Expr | FieldType Type deriving (Show)
 data Field = Field GetterAccess SetterAccess BindMode LocalIdent FieldContent deriving (Show)
 
+data StructMode = ValueStruct | RefStruct deriving (Show)
 data StructCase = StructCase StructCaseAccess [Field] [(LocalIdent, StructCase)] deriving (Show)
 
 data SetterMode = DestructiveSetter | ConstructiveSetter deriving (Show)
@@ -39,7 +40,7 @@ data SpecialArgument = SpecialArgument LocalIdent Type deriving (Show)
 
 data Dec
 	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
-	| StructDec LocalIdent StructCase
+	| StructDec StructMode LocalIdent StructCase
 	| GetterDec
 		Access
 		UnresolvedIdent

@@ -249,12 +249,13 @@ parseStructCaseBody = greedy $ do
 parseStructDec :: Parse Char Dec
 parseStructDec = greedy $ do
 	access <- parseStructCaseAccess
+	mode <- parseEither (lits "ref" >> kspace >> return RefStruct) (return ValueStruct)
 	lits "struct"
 	kspace
 	name <- parseLocalIdent
 	optional kspace
 	(fields, subCases) <- parseStructCaseBody
-	return $ StructDec name $ StructCase access fields subCases
+	return $ StructDec mode name $ StructCase access fields subCases
 
 parseDec :: Parse Char Dec
 parseDec = choice
