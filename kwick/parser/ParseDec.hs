@@ -340,6 +340,19 @@ parseProtocolDec = greedy $ do
 	lit '}'
 	return $ ProtocolDec access name params requirements
 
+parseOpenDec :: Parse Char Dec
+parseOpenDec = greedy $ do
+	lits "open"
+	kspace
+	openType <- choice
+		[lits "func"   >> return OpenFunc
+		,lits "getter" >> return OpenGetter
+		,lits "setter" >> return OpenSetter]
+	kspace
+	name <- parseLocalIdent
+	semicolon
+	return $ OpenDec openType name
+
 parseDec :: Parse Char Dec
 parseDec = choice
 	[parseFuncDec
@@ -347,4 +360,5 @@ parseDec = choice
 	,parseGetterDec
 	,parseSetterDec
 	,parseMethodDec
-	,parseProtocolDec]
+	,parseProtocolDec
+	,parseOpenDec]

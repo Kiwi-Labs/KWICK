@@ -44,6 +44,12 @@ data ProtocolRequirement
 	| SetterRequirement (Maybe SetterMode) UnresolvedIdent Type [ArgumentDefInterface] Type
 	deriving (Show)
 
+data OpenType
+	= OpenFunc
+	| OpenGetter
+	| OpenSetter
+	deriving (Show)
+
 data Dec
 	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
 	| StructDec StructMode LocalIdent StructCase
@@ -64,6 +70,7 @@ data Dec
 		[Stat]
 	| MethodDec Access UnresolvedIdent ArgumentDef [ArgumentDef] [Type] [Stat]
 	| ProtocolDec Access LocalIdent [LocalIdent]  [ProtocolRequirement]
+	| OpenDec OpenType LocalIdent
 	deriving (Show)
 
 data BindMode = VarBinding | LetBinding deriving (Show)
