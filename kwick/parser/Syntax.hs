@@ -15,10 +15,16 @@ data Type
 	| FunctionType [ArgumentDefInterface] [Type]
 	deriving (Show)
 
-data ArgumentMode = NamedArg | PositionalArg deriving (Show)
-data ArgumentDefInterface = ArgumentDefInterface (Maybe LocalIdent) Type deriving (Show)
-data ArgumentDef = ArgumentDef ArgumentMode LocalIdent Type deriving (Show)
-data LambdaArgumentDef = LambdaArgumentDef ArgumentMode LocalIdent (Maybe Type) deriving (Show)
+data ArgumentPassMode = NamedArg | PositionalArg deriving (Show)
+data ArgumentStaticMode = RuntimeArg | StaticArg deriving (Show)
+data ArgumentDefInterface =
+	ArgumentDefInterface ArgumentStaticMode (Maybe LocalIdent) Type
+	deriving (Show)
+data ArgumentDef
+	= RuntimeArgumentDef ArgumentPassMode LocalIdent Type
+	| StaticArgumentDef (Maybe LocalIdent) Type
+	deriving (Show)
+data LambdaArgumentDef = LambdaArgumentDef ArgumentPassMode LocalIdent (Maybe Type) deriving (Show)
 
 data Access = Public | Private deriving (Show)
 data GetterAccess = PublicGetter | PrivateGetter deriving (Show)

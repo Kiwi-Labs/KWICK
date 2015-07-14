@@ -27,6 +27,9 @@ parseParenthesizedTypes = kparenthesized parseType
 
 parseArgDefInterface :: Parse Char ArgumentDefInterface
 parseArgDefInterface = do
+	staticMode <- parseEither
+		(lits "static" >> kspace >> return StaticArg)
+		(return RuntimeArg)
 	maybeName <- optional $ do
 		lit '#'
 		optional kspace
@@ -36,7 +39,7 @@ parseArgDefInterface = do
 		optional kspace
 		return name
 	t <- parseType
-	return $ ArgumentDefInterface maybeName t
+	return $ ArgumentDefInterface staticMode maybeName t
 
 parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
 parseFunctionTypeArgs = kparenthesized parseArgDefInterface

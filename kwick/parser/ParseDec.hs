@@ -49,15 +49,33 @@ parseComplexAccessModifier = greedy $ parseEither public (return PrivateComplex)
 		lit ')'
 		return $ Set.fromList options
 
-parseArgDef :: Parse Char ArgumentDef
-parseArgDef = greedy $ do
+parseRuntimeArgDef :: Parse Char ArgumentDef
+parseRuntimeArgDef = greedy $ do
 	mode <- parseEither (lit '#' >> optional kspace >> return NamedArg) (return PositionalArg)
 	name <- parseLocalIdent
 	optional kspace
 	lit ':'
 	optional kspace
 	t <- parseType
-	return $ ArgumentDef mode name t
+	return $ RuntimeArgumentDef mode name t
+
+parseStaticArgDef :: Parse Char ArgumentDef
+parseStaticArgDef = greedy $ do
+	lits "static"
+	kspace
+	name <- optional $ do
+		lit '#'
+		optional kspace
+		name <- parseLocalIdent
+		optional kspace
+		lit ':'
+		optional kspace
+		return name
+	t <- parseType
+	return $ StaticArgumentDef name t
+
+parseArgDef :: Parse Char ArgumentDef
+parseArgDef = parseEither parseRuntimeArgDef parseStaticArgDef
 
 parseArgDefList :: Parse Char [ArgumentDef]
 parseArgDefList = kparenthesized parseArgDef
