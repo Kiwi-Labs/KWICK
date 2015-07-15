@@ -123,8 +123,8 @@ data Expr
 	deriving (Show)
 
 data Argument
-	= Argument (Maybe LocalIdent) Expr
-	| StaticArgument (Maybe LocalIdent) Type -- NOT YET SUPPORTED
+	= RuntimeArgument (Maybe LocalIdent) Expr
+	| StaticArgument (Maybe LocalIdent) Type
 	deriving (Show)
 
 data Module = Module [ImportPath] [Dec] deriving (Show)

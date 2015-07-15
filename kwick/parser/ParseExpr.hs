@@ -83,8 +83,8 @@ parseAtomicExpr = choice
 	,parseLongLambdaExpr
 	,parseShortLambdaExpr]
 
-parseArgument :: Parse Char Argument
-parseArgument = greedy $ do
+parseRuntimeArgument :: Parse Char Argument
+parseRuntimeArgument = greedy $ do
 	maybeName <- optional $ do
 		lit '#'
 		optional kspace
@@ -94,7 +94,25 @@ parseArgument = greedy $ do
 		optional kspace
 		return name
 	expr <- parseExpr
-	return $ Argument maybeName expr
+	return $ RuntimeArgument maybeName expr
+
+parseStaticArgument :: Parse Char Argument
+parseStaticArgument = greedy $ do
+	lits "static"
+	kspace
+	maybeName <- optional $ do
+		lit '#'
+		optional kspace
+		name <- parseLocalIdent
+		optional kspace
+		lit ':'
+		optional kspace
+		return name
+	t <- parseType
+	return $ StaticArgument maybeName t
+
+parseArgument :: Parse Char Argument
+parseArgument = parseEither parseRuntimeArgument parseStaticArgument
 
 parseArgumentList :: Parse Char [Argument]
 parseArgumentList = kparenthesized parseArgument
@@ -123,7 +141,7 @@ parseArrowCallExpr expr = greedy $ do
 	funcName <- parseUnresolvedIdent
 	optional kspace
 	args <- parseArgumentList
-	return $ CallExpr (BindingExpr funcName) $ (Argument Nothing expr) : args
+	return $ CallExpr (BindingExpr funcName) $ (RuntimeArgument Nothing expr) : args
 
 parseSuffixExpr :: Parse Char Expr
 parseSuffixExpr = chainNest parseAtomicExpr
@@ -141,7 +159,7 @@ prefixParse f char = greedy $ do
 parseNegationPrefix :: Parse Char Expr
 parseNegationPrefix =
 	prefixParse (\expr ->
-		CallExpr (BindingExpr $ UnresolvedIdent ["-"]) [Argument Nothing expr]) '-'
+		CallExpr (BindingExpr $ UnresolvedIdent ["-"]) [RuntimeArgument Nothing expr]) '-'
 
 parseCoreExpr :: Parse Char Expr
 parseCoreExpr = choice
@@ -315,7 +333,9 @@ precedenceExprToKiwiExpr (Precedence.Terminal expr) = expr
 precedenceExprToKiwiExpr (Precedence.Binop a op b) = let
 	a' = precedenceExprToKiwiExpr a
 	b' = precedenceExprToKiwiExpr b
-	in CallExpr (BindingExpr $ operatorIdent op) [Argument Nothing a', Argument Nothing b']
+	in CallExpr
+		(BindingExpr $ operatorIdent op)
+		[RuntimeArgument Nothing a', RuntimeArgument Nothing b']
 
 parsePossibleCastExpr :: Parse Char Expr
 parsePossibleCastExpr = do
