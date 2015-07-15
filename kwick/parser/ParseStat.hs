@@ -63,6 +63,25 @@ parseCallStat = greedy $ do
 		CallExpr receiver args -> return $ CallStat receiver args
 		_ -> parseFailure
 
+parseUpdateAssignOperator :: Parse Char Expr
+parseUpdateAssignOperator = choice $
+	map (\op -> lits op >> return (BindingExpr $ UnresolvedIdent [op]))
+		["+", "-", "*", "/", "%", "**"
+		,"&", "|", "^", ">>", "<<"
+		,"&&", "||"
+		,".."]
+
+parseUpdateAssignStat :: Parse Char Stat
+parseUpdateAssignStat = greedy $ do
+	lhs <- parseExpr
+	optional kspace
+	op <- parseUpdateAssignOperator
+	lit '='
+	optional kspace
+	rhs <- parseExpr
+	ksemicolon
+	return $ UpdateAssignStat lhs op rhs
+
 parseStatList :: Parse Char [Stat]
 parseStatList = greedy $ many $ greedy $ do
 		optional kspace
@@ -217,6 +236,7 @@ parseStat = choice
 	,parseNewBindStat
 	,parseAssignStat
 	,parseCallStat
+	,parseUpdateAssignStat
 	,parseCompoundStat
 	,parseWhileStat
 	,parseBreakStat

@@ -94,6 +94,7 @@ data Stat
 	| NewBindStat LocalIdent Type
 	| AssignStat [Expr] [Expr]
 	| CallStat Expr [Argument]
+	| UpdateAssignStat Expr Expr Expr -- lhs, operator func, rhs
 	| BlockStat [Stat]
 	| IfStat [(Expr, [Stat])] (Maybe [Stat])
 	| LoopStat [Stat]
