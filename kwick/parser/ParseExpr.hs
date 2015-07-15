@@ -59,7 +59,7 @@ parseLongLambdaExpr = greedy $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		kparenthesized parseType
+		kcommaSeparated parseType
 	optional kspace
 	body <- parseBody
 	return $ LambdaExpr args maybeRetTypes body
