@@ -68,6 +68,25 @@ parseTemplateType types = do
 	name <- parseUnresolvedIdent
 	return [TemplateType name types]
 
+parseListType :: [Type] -> Parse Char [Type]
+parseListType [t] = greedy $ do
+	optional kspace
+	lit '['
+	optional kspace
+	lit ']'
+	return [TemplateType (UnresolvedIdent ["List"]) [t]]
+parseListType _ = parseFailure
+
+parseDictType :: [Type] -> Parse Char [Type]
+parseDictType [valType] = greedy $ do
+	optional kspace
+	lit '['
+	optional kspace
+	keyType <- parseType
+	optional kspace
+	lit ']'
+	return $ [TemplateType (UnresolvedIdent ["Dict"]) [keyType, valType]]
+
 unaryKindParser :: (Type -> Type) -> Char -> [Type] -> Parse Char [Type]
 unaryKindParser f char [t] = do
 	optional kspace
@@ -79,6 +98,8 @@ parseType :: Parse Char Type
 parseType = do
 	types <- chainNest parseAtomicType
 		[parseTemplateType
+		,parseListType
+		,parseDictType
 		,unaryKindParser ReferenceType '!'
 		,unaryKindParser NullableType '?'
 		,unaryKindParser PointerType '&']
