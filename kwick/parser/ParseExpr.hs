@@ -70,7 +70,7 @@ parseShortLambdaExpr = greedy $ do
 	optional kspace
 	lits "=>"
 	optional kspace
-	exprs <- parseEither (fmap (\e -> [e]) parseExpr) (kparenthesized parseExpr)
+	exprs <- ksingleOrParenthesized parseExpr
 	return $ LambdaExpr args Nothing [ReturnStat exprs]
 
 parseAtomicExpr :: Parse Char Expr

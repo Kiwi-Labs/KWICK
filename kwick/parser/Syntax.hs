@@ -5,6 +5,9 @@ newtype UnresolvedIdent = UnresolvedIdent [String] deriving (Show)
 
 newtype LocalIdent = LocalIdent String deriving (Show)
 
+data ImportTermination = ImportSome [LocalIdent] | ImportAll deriving (Show)
+data ImportPath = ImportPath [LocalIdent] ImportTermination deriving (Show)
+
 data Type
 	= OpaqueType UnresolvedIdent
 	| TemplateParameterType LocalIdent
@@ -123,3 +126,5 @@ data Argument
 	= Argument (Maybe LocalIdent) Expr
 	| StaticArgument (Maybe LocalIdent) Type -- NOT YET SUPPORTED
 	deriving (Show)
+
+data Module = Module [ImportPath] [Dec] deriving (Show)

@@ -15,11 +15,6 @@ import ParseType
 import ParseStat
 import ParseExpr
 
--- This was copied-and-pasted from ParseStat.
--- It's very small, but maybe it should be refactored into some common module?
-semicolon :: Parse Char ()
-semicolon = optional kspace >> lit ';' >> return ()
-
 parseAccessModifier :: Parse Char Access
 parseAccessModifier = greedy $ parseEither
 	(lits "publ" >> kspace >> return Public)
@@ -238,7 +233,7 @@ parseField = greedy $ do
 	name <- parseLocalIdent
 	optional kspace
 	content <- parseFieldContent
-	semicolon
+	ksemicolon
 	return $ Field getterAccess setterAccess mode name content
 
 parseStructSubcase :: Parse Char (LocalIdent, StructCase)
@@ -250,7 +245,7 @@ parseStructSubcase = greedy $ do
 	optional kspace
 	(fields, subCases) <- parseEither
 		parseStructCaseBody
-		(semicolon >> return ([], []))
+		(ksemicolon >> return ([], []))
 	return $ (name, StructCase access fields subCases)
 
 parseStructElement :: Parse Char (Either Field (LocalIdent, StructCase))
@@ -287,7 +282,7 @@ parseFuncReq = greedy $ do
 	optional kspace
 	args <- kparenthesized parseArgDefInterface
 	retTypes <- parseRetTypes
-	semicolon
+	ksemicolon
 	return $ FuncRequirement name args retTypes
 
 parseOptArgInterfaces :: Parse Char [ArgumentDefInterface]
@@ -312,7 +307,7 @@ parseGetterReq = greedy $ do
 	lits "->"
 	optional kspace
 	retType <- parseType
-	semicolon
+	ksemicolon
 	return $ GetterRequirement name receiver args retType
 
 parseSetterReq :: Parse Char ProtocolRequirement
@@ -334,7 +329,7 @@ parseSetterReq = greedy $ do
 	lit '='
 	optional kspace
 	t <- parseType
-	semicolon
+	ksemicolon
 	return $ SetterRequirement mode name receiver args t
 
 parseProtocolReq :: Parse Char ProtocolRequirement
@@ -368,7 +363,7 @@ parseOpenDec = greedy $ do
 		,lits "setter" >> return OpenSetter]
 	kspace
 	name <- parseLocalIdent
-	semicolon
+	ksemicolon
 	return $ OpenDec openType name
 
 parseDec :: Parse Char Dec

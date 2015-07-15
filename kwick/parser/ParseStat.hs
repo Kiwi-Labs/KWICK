@@ -19,9 +19,6 @@ parseBindMode = choice
 	[lits "var" >> return VarBinding
 	,lits "let" >> return LetBinding]
 
-semicolon :: Parse Char ()
-semicolon = optional kspace >> lit ';' >> return ()
-
 parseBindStat :: Parse Char Stat
 parseBindStat = greedy $ do
 	mode <- parseBindMode
@@ -31,7 +28,7 @@ parseBindStat = greedy $ do
 	lit '='
 	optional kspace
 	rhs <- parseExpr
-	semicolon
+	ksemicolon
 	return $ BindStat mode name rhs
 
 parseNewBindStat :: Parse Char Stat
@@ -43,7 +40,7 @@ parseNewBindStat = greedy $ do
 	lit ':'
 	optional kspace
 	t <- parseType
-	semicolon
+	ksemicolon
 	return $ NewBindStat name t
 
 parseAssignStat :: Parse Char Stat
@@ -55,13 +52,13 @@ parseAssignStat = greedy $ do
 	optional kspace
 	rhs <- kcommaSeparated parseExpr
 	guard $ not $ null rhs
-	semicolon
+	ksemicolon
 	return $ AssignStat lhs rhs
 
 parseCallStat :: Parse Char Stat
 parseCallStat = greedy $ do
 	expr <- parseExpr
-	semicolon
+	ksemicolon
 	case expr of
 		CallExpr receiver args -> return $ CallStat receiver args
 		_ -> parseFailure
@@ -184,19 +181,19 @@ parseWhileStat = greedy $ do
 	lits "while"
 	kspace
 	condition <- parseExpr
-	semicolon
+	ksemicolon
 	return $ WhileStat condition
 
 parseBreakStat :: Parse Char Stat
 parseBreakStat = greedy $ do
 	lits "break"
-	semicolon
+	ksemicolon
 	return BreakStat
 
 parseContinueStat :: Parse Char Stat
 parseContinueStat = greedy $ do
 	lits "continue"
-	semicolon
+	ksemicolon
 	return ContinueStat
 
 parseReturnStat :: Parse Char Stat
@@ -204,7 +201,7 @@ parseReturnStat = greedy $ do
 	lits "ret"
 	kspace
 	vals <- kcommaSeparated parseExpr
-	semicolon
+	ksemicolon
 	return $ ReturnStat vals
 
 parseValueStat :: Parse Char Stat
@@ -212,7 +209,7 @@ parseValueStat = greedy $ do
 	lits "val"
 	kspace
 	vals <- kcommaSeparated parseExpr
-	semicolon
+	ksemicolon
 	return $ ValueStat vals
 
 parseStat = choice
