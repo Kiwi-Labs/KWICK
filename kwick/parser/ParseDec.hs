@@ -75,12 +75,12 @@ parseArgDef = parseEither parseRuntimeArgDef parseStaticArgDef
 parseArgDefList :: Parse Char [ArgumentDef]
 parseArgDefList = kparenthesized parseArgDef
 
-parseRetTypes :: Parse Char [Type]
-parseRetTypes = fmap (fromMaybe []) $ greedy $ optional $ do
+parseRetType :: Parse Char Type
+parseRetType = fmap (fromMaybe VoidType) $ greedy $ optional $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		kcommaSeparated parseType
+		parseType
 
 parseFuncDec :: Parse Char Dec
 parseFuncDec = greedy $ do
@@ -90,10 +90,10 @@ parseFuncDec = greedy $ do
 	name <- parseUnresolvedIdent
 	optional kspace
 	args <- parseArgDefList
-	retTypes <- parseRetTypes
+	retType <- parseRetType
 	optional kspace
 	body <- parseBody
-	return $ FuncDec access name args retTypes body
+	return $ FuncDec access name args retType body
 
 parseSpecialArg :: Parse Char SpecialArgument
 parseSpecialArg = greedy $ do
@@ -174,10 +174,10 @@ parseMethodDec = greedy $ do
 		kcommaSeparated parseArgDef
 	optional kspace
 	lit ')'
-	retTypes <- parseRetTypes
+	retType <- parseRetType
 	optional kspace
 	body <- parseBody
-	return $ MethodDec access name dynArg mainArgs retTypes body
+	return $ MethodDec access name dynArg mainArgs retType body
 
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do
@@ -281,9 +281,9 @@ parseFuncReq = greedy $ do
 	name <- parseUnresolvedIdent
 	optional kspace
 	args <- kparenthesized parseArgDefInterface
-	retTypes <- parseRetTypes
+	retType <- parseRetType
 	ksemicolon
-	return $ FuncRequirement name args retTypes
+	return $ FuncRequirement name args retType
 
 parseOptArgInterfaces :: Parse Char [ArgumentDefInterface]
 parseOptArgInterfaces =

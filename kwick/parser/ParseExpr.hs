@@ -6,8 +6,7 @@ where
 --       from parsing @x.y as @(x.y) to (@x).y
 
 import Parse
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (guard, forever)
+import Control.Applicative ((<$>))
 import Data.Maybe (fromMaybe)
 import qualified Precedence as Precedence
 
@@ -55,14 +54,14 @@ parseLongLambdaExpr = greedy $ do
 	lits "func"
 	optional kspace
 	args <- parseLambdaArgs
-	maybeRetTypes <- optional $ do
+	maybeRetType <- optional $ do
 		optional kspace
 		lits "->"
 		optional kspace
-		kcommaSeparated parseType
+		parseType
 	optional kspace
 	body <- parseBody
-	return $ LambdaExpr args maybeRetTypes body
+	return $ LambdaExpr args maybeRetType body
 
 parseShortLambdaExpr :: Parse Char Expr
 parseShortLambdaExpr = greedy $ do
@@ -70,8 +69,8 @@ parseShortLambdaExpr = greedy $ do
 	optional kspace
 	lits "=>"
 	optional kspace
-	exprs <- ksingleOrParenthesized parseExpr
-	return $ LambdaExpr args Nothing [ReturnStat exprs]
+	expr <- parseExpr
+	return $ LambdaExpr args Nothing [ReturnStat expr]
 
 parseAtomicExpr :: Parse Char Expr
 parseAtomicExpr = choice
@@ -215,6 +214,7 @@ precedence op = case op of
 	Sub -> AdditivePrecedence
 	Mul -> MultiplicativePrecedence
 	Div -> MultiplicativePrecedence
+	Pow -> PowerPrecedence
 	Mod -> MultiplicativePrecedence
 	
 	NotEqual -> ComparisonPrecedence

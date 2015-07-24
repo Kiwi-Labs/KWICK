@@ -10,12 +10,13 @@ data ImportPath = ImportPath [LocalIdent] ImportTermination deriving (Show)
 
 data Type
 	= OpaqueType UnresolvedIdent
+	| VoidType
 	| TemplateParameterType LocalIdent
 	| TemplateType UnresolvedIdent [Type]
 	| ReferenceType Type
 	| NullableType Type
 	| PointerType Type
-	| FunctionType [ArgumentDefInterface] [Type]
+	| FunctionType [ArgumentDefInterface] Type
 	deriving (Show)
 
 data ArgumentPassMode = NamedArg | PositionalArg deriving (Show)
@@ -48,7 +49,7 @@ data SetterMode = DestructiveSetter | ConstructiveSetter deriving (Show)
 data SpecialArgument = SpecialArgument LocalIdent Type deriving (Show)
 
 data ProtocolRequirement
-	= FuncRequirement UnresolvedIdent [ArgumentDefInterface] [Type]
+	= FuncRequirement UnresolvedIdent [ArgumentDefInterface] Type
 	| GetterRequirement UnresolvedIdent Type [ArgumentDefInterface] Type
 	| SetterRequirement (Maybe SetterMode) UnresolvedIdent Type [ArgumentDefInterface] Type
 	deriving (Show)
@@ -60,7 +61,7 @@ data OpenType
 	deriving (Show)
 
 data Dec
-	= FuncDec Access UnresolvedIdent [ArgumentDef] [Type] [Stat]
+	= FuncDec Access UnresolvedIdent [ArgumentDef] Type [Stat]
 	| StructDec StructMode LocalIdent StructCase
 	| GetterDec
 		Access
@@ -77,7 +78,7 @@ data Dec
 		[ArgumentDef]
 		SpecialArgument
 		[Stat]
-	| MethodDec Access UnresolvedIdent ArgumentDef [ArgumentDef] [Type] [Stat]
+	| MethodDec Access UnresolvedIdent ArgumentDef [ArgumentDef] Type [Stat]
 	| ProtocolDec Access LocalIdent [LocalIdent]  [ProtocolRequirement]
 	| OpenDec OpenType LocalIdent
 	deriving (Show)
@@ -92,7 +93,7 @@ data ExtractClause = ExtractClause BindMode LocalIdent (Maybe Expr) ExtractTarge
 data Stat
 	= BindStat BindMode LocalIdent Expr
 	| NewBindStat LocalIdent Type
-	| AssignStat [Expr] [Expr]
+	| AssignStat Expr Expr
 	| CallStat Expr [Argument]
 	| UpdateAssignStat Expr Expr Expr -- lhs, operator func, rhs
 	| BlockStat [Stat]
@@ -104,8 +105,8 @@ data Stat
 	| WhileStat Expr
 	| BreakStat
 	| ContinueStat
-	| ReturnStat [Expr]
-	| ValueStat [Expr]
+	| ReturnStat Expr
+	| ValueStat Expr
 	deriving (Show)
 
 data Expr
@@ -120,7 +121,7 @@ data Expr
 	| StringLitExpr String
 	| CastExpr Expr Type
 	| StatExpr Stat
-	| LambdaExpr [LambdaArgumentDef] (Maybe [Type]) [Stat]
+	| LambdaExpr [LambdaArgumentDef] (Maybe Type) [Stat]
 	deriving (Show)
 
 data Argument

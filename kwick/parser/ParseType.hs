@@ -3,9 +3,6 @@ module ParseType
 	,parseArgDefInterface)
 where
 
-import Control.Applicative ((<$>), (<*>))
-import Data.Maybe (fromMaybe)
-
 import Syntax
 import Parse
 import ParseIdent
@@ -15,6 +12,13 @@ parseOpaqueType :: Parse Char [Type]
 parseOpaqueType = greedy $ do
 	name <- parseUnresolvedIdent
 	return [OpaqueType name]
+
+parseVoidType :: Parse Char [Type]
+parseVoidType = greedy $ do
+	lit '('
+	optional kspace
+	lit ')'
+	return [VoidType]
 
 parseTemplateParameterType :: Parse Char [Type]
 parseTemplateParameterType = greedy $ do
@@ -45,19 +49,20 @@ parseFunctionTypeArgs :: Parse Char [ArgumentDefInterface]
 parseFunctionTypeArgs = kparenthesized parseArgDefInterface
 
 parseFunctionType :: Parse Char [Type]
-parseFunctionType = do
+parseFunctionType = greedy $ do
 	lits "func"
 	optional kspace
 	args <- parseFunctionTypeArgs
 	optional kspace
 	lits "->"
 	optional kspace
-	rets <- parseParenthesizedTypes
-	return [FunctionType args rets]
+	ret <- parseType
+	return [FunctionType args ret]
 
 parseAtomicType :: Parse Char [Type]
 parseAtomicType = choice
 	[parseOpaqueType
+	,parseVoidType
 	,parseTemplateParameterType
 	,parseParenthesizedTypes
 	,parseFunctionType]
@@ -86,6 +91,7 @@ parseDictType [valType] = greedy $ do
 	optional kspace
 	lit ']'
 	return $ [TemplateType (UnresolvedIdent ["Dict"]) [keyType, valType]]
+parseDictType _ = parseFailure
 
 unaryKindParser :: (Type -> Type) -> Char -> [Type] -> Parse Char [Type]
 unaryKindParser f char [t] = do

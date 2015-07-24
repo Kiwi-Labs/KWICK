@@ -4,7 +4,6 @@ module ParseStat
 	,parseCompoundStat)
 where
 
-import Control.Monad (guard)
 import Data.Maybe (fromMaybe)
 
 import Syntax
@@ -45,13 +44,11 @@ parseNewBindStat = greedy $ do
 
 parseAssignStat :: Parse Char Stat
 parseAssignStat = greedy $ do
-	lhs <- kcommaSeparated parseExpr
-	guard $ not $ null lhs
+	lhs <- parseExpr
 	optional kspace
 	lit '='
 	optional kspace
-	rhs <- kcommaSeparated parseExpr
-	guard $ not $ null rhs
+	rhs <- parseExpr
 	ksemicolon
 	return $ AssignStat lhs rhs
 
@@ -219,17 +216,17 @@ parseReturnStat :: Parse Char Stat
 parseReturnStat = greedy $ do
 	lits "ret"
 	kspace
-	vals <- kcommaSeparated parseExpr
+	val <- parseExpr
 	ksemicolon
-	return $ ReturnStat vals
+	return $ ReturnStat val
 
 parseValueStat :: Parse Char Stat
 parseValueStat = greedy $ do
 	lits "val"
 	kspace
-	vals <- kcommaSeparated parseExpr
+	val <- parseExpr
 	ksemicolon
-	return $ ValueStat vals
+	return $ ValueStat val
 
 parseStat = choice
 	[parseBindStat

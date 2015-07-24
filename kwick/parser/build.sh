@@ -1,1 +1,1 @@
-ghc main.hs -outputdir=./build -o ./build/main
+ghc -W main.hs -outputdir=./build -o ./build/main

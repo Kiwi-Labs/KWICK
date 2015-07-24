@@ -135,7 +135,7 @@ lits :: (Eq t) => [t] -> Parse t [t]
 lits l@(x : xs) = do
 		token <- consume1
 		guard $ token == x
-		tokens <- lits xs
+		lits xs
 		return l
 lits [] = return []
 
