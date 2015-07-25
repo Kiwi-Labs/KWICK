@@ -72,6 +72,15 @@ parseShortLambdaExpr = greedy $ do
 	expr <- parseExpr
 	return $ LambdaExpr args Nothing [ReturnStat expr]
 
+parseListLiteralExpr :: Parse Char Expr
+parseListLiteralExpr = greedy $ do
+	lit '['
+	optional kspace
+	elems <- kcommaSeparated parseExpr
+	optional kspace
+	lit ']'
+	return $ ListLiteralExpr elems
+
 parseAtomicExpr :: Parse Char Expr
 parseAtomicExpr = choice
 	[BindingExpr <$> parseUnresolvedIdent
@@ -80,7 +89,8 @@ parseAtomicExpr = choice
 	,parseStringLitExpr
 	,parseParenthesizedExpr
 	,parseLongLambdaExpr
-	,parseShortLambdaExpr]
+	,parseShortLambdaExpr
+	,parseListLiteralExpr]
 
 parseRuntimeArgument :: Parse Char Argument
 parseRuntimeArgument = greedy $ do

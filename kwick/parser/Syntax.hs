@@ -132,6 +132,7 @@ data Expr
 	| CastExpr Expr Type
 	| StatExpr Stat
 	| LambdaExpr [LambdaArgumentDef] (Maybe Type) [Stat]
+	| ListLiteralExpr [Expr]
 	deriving (Show)
 
 data Argument
