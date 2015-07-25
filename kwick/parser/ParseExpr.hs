@@ -160,11 +160,22 @@ parseArrowCallExpr expr = greedy $ do
 	args <- parseArgumentList
 	return $ CallExpr (BindingExpr funcName) $ (RuntimeArgument Nothing expr) : args
 
+parseIndexExpr :: Expr -> Parse Char Expr
+parseIndexExpr expr = greedy $ do
+	optional kspace
+	lit '['
+	optional kspace
+	args <- kcommaSeparated parseArgument
+	optional kspace
+	lit ']'
+	return $ AccessorExpr expr (makeUnresolvedIdent "index") args
+
 parseSuffixExpr :: Parse Char Expr
 parseSuffixExpr = chainNest parseAtomicExpr
 	[parseAccessorExpr
 	,parseFunctionCallExpr
-	,parseArrowCallExpr]
+	,parseArrowCallExpr
+	,parseIndexExpr]
 
 prefixParse :: (Expr -> Expr) -> Char -> Parse Char Expr
 prefixParse f char = greedy $ do
