@@ -212,6 +212,8 @@ data BinaryOperator
 	| Concat
 	
 	| Range
+	
+	| NamedOperator UnresolvedIdent
 	deriving (Show)
 
 -- In order of *decreasing* precedence
@@ -223,6 +225,7 @@ data BinaryOperatorPrecedenceGroup
 	| ComparisonPrecedence
 	| LogicAndPrecedence
 	| LogicOrPrecedence
+	| NamedOperatorPrecedence
 	deriving (Show, Eq, Ord)
 
 precedence :: BinaryOperator -> BinaryOperatorPrecedenceGroup
@@ -252,6 +255,8 @@ precedence op = case op of
 	
 	Concat -> CompositionPrecedence
 	Range -> CompositionPrecedence
+	
+	NamedOperator _ -> NamedOperatorPrecedence
 
 associativity :: BinaryOperatorPrecedenceGroup -> Precedence.Grouping
 associativity group = case group of
@@ -262,6 +267,7 @@ associativity group = case group of
 	ComparisonPrecedence -> Precedence.GroupLeft
 	LogicAndPrecedence -> Precedence.GroupRight
 	LogicOrPrecedence -> Precedence.GroupRight
+	NamedOperatorPrecedence -> Precedence.GroupLeft
 
 binaryOperatorGrouping :: BinaryOperator -> BinaryOperator -> Precedence.Grouping
 binaryOperatorGrouping op1 op2 = let
@@ -272,8 +278,8 @@ binaryOperatorGrouping op1 op2 = let
 		GT -> Precedence.GroupRight
 		EQ -> associativity p1
 
-parseBinaryOperator :: Parse Char BinaryOperator
-parseBinaryOperator = choice $ map (\(src, enum) -> lits src >> return enum)
+ordinaryBinaryOperatorParsers :: [Parse Char BinaryOperator]
+ordinaryBinaryOperatorParsers = map (\(src, enum) -> lits src >> return enum)
 	[("+", Add)
 	,("-", Sub)
 	,("*", Mul)
@@ -303,7 +309,18 @@ parseBinaryOperator = choice $ map (\(src, enum) -> lits src >> return enum)
 	,("...", Range)
 	,("..", Concat)]
 
+parseNamedBinaryOperator :: Parse Char BinaryOperator
+parseNamedBinaryOperator = greedy $ do
+	lit '`'
+	name <- parseUnresolvedIdent
+	lit '`'
+	return $ NamedOperator name
+
+parseBinaryOperator :: Parse Char BinaryOperator
+parseBinaryOperator = greedy $ choice $ ordinaryBinaryOperatorParsers ++ [parseNamedBinaryOperator]
+
 operatorIdent :: BinaryOperator -> UnresolvedIdent
+operatorIdent (NamedOperator name) = name
 operatorIdent op = makeUnresolvedIdent name where
 	name = case op of
 		Add -> "+"
@@ -332,6 +349,8 @@ operatorIdent op = makeUnresolvedIdent name where
 		Concat -> ".."
 		
 		Range -> "..."
+		
+		NamedOperator _ -> error "This can never happen, because NamedOperator is handled above"
 
 parseBinopSequence :: Parse Char Expr
 parseBinopSequence = do

@@ -60,13 +60,24 @@ parseCallStat = greedy $ do
 		CallExpr receiver args -> return $ CallStat receiver args
 		_ -> parseFailure
 
-parseUpdateAssignOperator :: Parse Char Expr
-parseUpdateAssignOperator = choice $
+ordinaryUpdateAssignOperatorParsers :: [Parse Char Expr]
+ordinaryUpdateAssignOperatorParsers =
 	map (\op -> lits op >> return (BindingExpr $ makeUnresolvedIdent op))
 		["+", "-", "*", "/", "%", "**"
 		,"&", "|", "^", ">>", "<<"
 		,"&&", "||"
 		,".."]
+
+parseNamedUpdateAssignOperator :: Parse Char Expr
+parseNamedUpdateAssignOperator = greedy $ do
+	lit '`'
+	name <- parseUnresolvedIdent
+	lit '`'
+	return $ BindingExpr name
+
+parseUpdateAssignOperator :: Parse Char Expr
+parseUpdateAssignOperator =
+	greedy $ choice $ ordinaryUpdateAssignOperatorParsers ++ [parseNamedUpdateAssignOperator]
 
 parseUpdateAssignStat :: Parse Char Stat
 parseUpdateAssignStat = greedy $ do
