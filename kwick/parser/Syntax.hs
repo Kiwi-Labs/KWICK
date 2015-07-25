@@ -1,7 +1,13 @@
 -- Everything in this module is exported
 module Syntax where
 
-newtype UnresolvedIdent = UnresolvedIdent [String] deriving (Show)
+data UnresolvedIdent
+	= UnresolvedIdent [LocalIdent]
+	| LocalModuleIdent Access [LocalIdent]
+	deriving (Show)
+
+makeUnresolvedIdent :: String -> UnresolvedIdent
+makeUnresolvedIdent name = UnresolvedIdent [LocalIdent name]
 
 newtype LocalIdent = LocalIdent String deriving (Show)
 
@@ -34,8 +40,6 @@ data Access = Public | Private deriving (Show)
 data GetterAccess = PublicGetter | PrivateGetter deriving (Show)
 data SetterAccess = PublicSetter | PrivateSetter deriving (Show)
 data ConstructorAccess = PublicConstructor | PrivateConstructor deriving (Show)
-data ExtensionAccess = PublicExtension | PrivateExtension deriving (Show)
-data ClassAccess = PublicClass ConstructorAccess ExtensionAccess | PrivateClass deriving (Show)
 data StructCaseAccess = PublicCase ConstructorAccess | PrivateCase deriving (Show)
 
 data FieldContent = FieldInitializer Expr | FieldType Type deriving (Show)

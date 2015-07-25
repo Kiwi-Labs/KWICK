@@ -79,7 +79,7 @@ parseListType [t] = greedy $ do
 	lit '['
 	optional kspace
 	lit ']'
-	return [TemplateType (UnresolvedIdent ["List"]) [t]]
+	return [TemplateType (makeUnresolvedIdent "List") [t]]
 parseListType _ = parseFailure
 
 parseDictType :: [Type] -> Parse Char [Type]
@@ -90,7 +90,7 @@ parseDictType [valType] = greedy $ do
 	keyType <- parseType
 	optional kspace
 	lit ']'
-	return $ [TemplateType (UnresolvedIdent ["Dict"]) [keyType, valType]]
+	return $ [TemplateType (makeUnresolvedIdent "Dict") [keyType, valType]]
 parseDictType _ = parseFailure
 
 unaryKindParser :: (Type -> Type) -> Char -> [Type] -> Parse Char [Type]

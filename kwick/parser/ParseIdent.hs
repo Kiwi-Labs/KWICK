@@ -8,7 +8,7 @@ import Data.Char (isAlpha, isAlphaNum)
 import Control.Monad (guard)
 import Control.Applicative ((<$>), (<*>))
 
-import Syntax (UnresolvedIdent (..), LocalIdent (..))
+import Syntax
 import Parse
 import ParseQuoted
 
@@ -30,7 +30,7 @@ reservedWords = Set.fromList
 	,"break"
 	,"ret"
 	,"continue"
-	,"val"
+	,"value"
 	,"struct"
 	,"case"
 	,"class"
@@ -67,8 +67,18 @@ parseQuotedLocalIdent = greedy $ LocalIdent <$> parseQuotedString '\''
 parseLocalIdent :: Parse Char LocalIdent
 parseLocalIdent = parseEither parseNormalLocalIdent parseQuotedLocalIdent
 
-parseUnresolvedIdent :: Parse Char UnresolvedIdent
-parseUnresolvedIdent = greedy $ do
-	names <- delimited1 (lits "::") parseLocalIdent
-	let path = map (\(LocalIdent name) -> name) names
+parseNormalUnresolvedIdent :: Parse Char UnresolvedIdent
+parseNormalUnresolvedIdent = greedy $ do
+	path <- delimited1 (lits "::") parseLocalIdent
 	return $ UnresolvedIdent path
+
+parseLocalModuleIdent :: Parse Char UnresolvedIdent
+parseLocalModuleIdent = greedy $ do
+	access <- parseEither
+		(lits "publ" >> return Public)
+		(lits "priv" >> return Private)
+	lits "::"
+	path <- delimited1 (lits "::") parseLocalIdent
+	return $ LocalModuleIdent access path
+
+parseUnresolvedIdent = parseEither parseNormalUnresolvedIdent parseLocalModuleIdent

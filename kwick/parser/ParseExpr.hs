@@ -158,7 +158,7 @@ prefixParse f char = greedy $ do
 parseNegationPrefix :: Parse Char Expr
 parseNegationPrefix =
 	prefixParse (\expr ->
-		CallExpr (BindingExpr $ UnresolvedIdent ["-"]) [RuntimeArgument Nothing expr]) '-'
+		CallExpr (BindingExpr $ makeUnresolvedIdent "-") [RuntimeArgument Nothing expr]) '-'
 
 parseCoreExpr :: Parse Char Expr
 parseCoreExpr = choice
@@ -287,7 +287,7 @@ parseBinaryOperator = choice $ map (\(src, enum) -> lits src >> return enum)
 	,("..", Concat)]
 
 operatorIdent :: BinaryOperator -> UnresolvedIdent
-operatorIdent op = UnresolvedIdent [name] where
+operatorIdent op = makeUnresolvedIdent name where
 	name = case op of
 		Add -> "+"
 		Sub -> "-"

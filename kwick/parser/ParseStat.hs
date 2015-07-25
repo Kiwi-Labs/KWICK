@@ -62,7 +62,7 @@ parseCallStat = greedy $ do
 
 parseUpdateAssignOperator :: Parse Char Expr
 parseUpdateAssignOperator = choice $
-	map (\op -> lits op >> return (BindingExpr $ UnresolvedIdent [op]))
+	map (\op -> lits op >> return (BindingExpr $ makeUnresolvedIdent op))
 		["+", "-", "*", "/", "%", "**"
 		,"&", "|", "^", ">>", "<<"
 		,"&&", "||"
