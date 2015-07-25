@@ -274,10 +274,16 @@ parseStructDec = greedy $ do
 	mode <- parseEither (lits "ref" >> kspace >> return RefStruct) (return ValueStruct)
 	lits "struct"
 	kspace
+	params <- greedy $ choice
+		-- marked greedy so that "struct $AB {}" cannot parse as "struct $A B {}"
+		[kparenthesized parseTemplateParam
+		,fmap (\p -> [p]) parseTemplateParam
+		,return []]
+	optional kspace
 	name <- parseLocalIdent
 	optional kspace
 	(fields, subCases) <- parseStructCaseBody
-	return $ StructDec mode name $ StructCase access fields subCases
+	return $ StructDec mode params name $ StructCase access fields subCases
 
 parseFuncReq :: Parse Char ProtocolRequirement
 parseFuncReq = greedy $ do
@@ -361,6 +367,9 @@ parseProtocolReqs = greedy $ do
 	optional kspace
 	lit '}'
 	return requirements
+
+parseTemplateParam :: Parse Char LocalIdent
+parseTemplateParam = lit '$' >> parseLocalIdent
 
 parseProtocolDec :: Parse Char Dec
 parseProtocolDec = greedy $ do

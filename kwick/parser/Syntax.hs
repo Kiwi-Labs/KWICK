@@ -68,7 +68,7 @@ data OpenType
 
 data TemplatizableDec
 	= FuncDec ExtendableAccess UnresolvedIdent [ArgumentDef] Type [Stat]
-	| StructDec StructMode LocalIdent StructCase
+	| StructDec StructMode [LocalIdent] LocalIdent StructCase
 	| GetterDec
 		ExtendableAccess
 		UnresolvedIdent
