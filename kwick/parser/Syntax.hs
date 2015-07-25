@@ -57,6 +57,7 @@ data ProtocolRequirement
 	= FuncRequirement UnresolvedIdent [ArgumentDefInterface] Type
 	| GetterRequirement UnresolvedIdent Type [ArgumentDefInterface] Type
 	| SetterRequirement (Maybe SetterMode) UnresolvedIdent Type [ArgumentDefInterface] Type
+	| ExternalProtocolRequirement UnresolvedIdent [Type]
 	deriving (Show)
 
 data OpenType
@@ -65,7 +66,7 @@ data OpenType
 	| OpenSetter
 	deriving (Show)
 
-data Dec
+data TemplatizableDec
 	= FuncDec ExtendableAccess UnresolvedIdent [ArgumentDef] Type [Stat]
 	| StructDec StructMode LocalIdent StructCase
 	| GetterDec
@@ -84,7 +85,11 @@ data Dec
 		SpecialArgument
 		[Stat]
 	| MethodDec UnresolvedIdent ArgumentDef [ArgumentDef] Type [Stat]
-	| ProtocolDec Access LocalIdent [LocalIdent]  [ProtocolRequirement]
+	deriving (Show)
+
+data Dec
+	= TemplatizedDec [ProtocolRequirement] TemplatizableDec
+	| ProtocolDec Access LocalIdent [LocalIdent] [ProtocolRequirement]
 	| OpenDec OpenType LocalIdent
 	deriving (Show)
 

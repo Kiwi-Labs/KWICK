@@ -88,7 +88,7 @@ parseRetType = fmap (fromMaybe VoidType) $ greedy $ optional $ do
 		optional kspace
 		parseType
 
-parseFuncDec :: Parse Char Dec
+parseFuncDec :: Parse Char TemplatizableDec
 parseFuncDec = greedy $ do
 	access <- parseExtendableAccessModifier
 	lits "func"
@@ -114,7 +114,7 @@ parseSpecialArg = greedy $ do
 	lit ')'
 	return $ SpecialArgument name t
 
-parseGetterDec :: Parse Char Dec
+parseGetterDec :: Parse Char TemplatizableDec
 parseGetterDec = greedy $ do
 	access <- parseExtendableAccessModifier
 	lits "getter"
@@ -141,7 +141,7 @@ parseSetterMode = greedy $ do
 	kspace
 	return mode
 
-parseSetterDec :: Parse Char Dec
+parseSetterDec :: Parse Char TemplatizableDec
 parseSetterDec = greedy $ do
 	access <- parseExtendableAccessModifier
 	setterMode <- parseSetterMode
@@ -161,7 +161,7 @@ parseSetterDec = greedy $ do
 	body <- parseBody
 	return $ SetterDec access setterMode name receiver args newValArg body
 
-parseMethodDec :: Parse Char Dec
+parseMethodDec :: Parse Char TemplatizableDec
 parseMethodDec = greedy $ do
 	lits "method"
 	kspace
@@ -268,7 +268,7 @@ parseStructCaseBody = greedy $ do
 	lit '}'
 	return $ partitionWith id elements
 
-parseStructDec :: Parse Char Dec
+parseStructDec :: Parse Char TemplatizableDec
 parseStructDec = greedy $ do
 	access <- parseStructCaseAccess
 	mode <- parseEither (lits "ref" >> kspace >> return RefStruct) (return ValueStruct)
@@ -337,11 +337,30 @@ parseSetterReq = greedy $ do
 	ksemicolon
 	return $ SetterRequirement mode name receiver args t
 
+parseExternalProtocolReq :: Parse Char ProtocolRequirement
+parseExternalProtocolReq = greedy $ do
+	lits "protocol"
+	kspace
+	name <- parseUnresolvedIdent
+	optional kspace
+	params <- kparenthesized parseType
+	ksemicolon
+	return $ ExternalProtocolRequirement name params
+
 parseProtocolReq :: Parse Char ProtocolRequirement
 parseProtocolReq = greedy $ choice
 	[parseFuncReq
 	,parseGetterReq
-	,parseSetterReq]
+	,parseSetterReq
+	,parseExternalProtocolReq]
+
+parseProtocolReqs :: Parse Char [ProtocolRequirement]
+parseProtocolReqs = greedy $ do
+	lit '{'
+	requirements <- many $ optional kspace >> parseProtocolReq
+	optional kspace
+	lit '}'
+	return requirements
 
 parseProtocolDec :: Parse Char Dec
 parseProtocolDec = greedy $ do
@@ -352,10 +371,7 @@ parseProtocolDec = greedy $ do
 	optional kspace
 	params <- kparenthesized $ lit '$' >> parseLocalIdent
 	optional kspace
-	lit '{'
-	requirements <- many $ optional kspace >> parseProtocolReq
-	optional kspace
-	lit '}'
+	requirements <- parseProtocolReqs
 	return $ ProtocolDec access name params requirements
 
 parseOpenDec :: Parse Char Dec
@@ -371,12 +387,27 @@ parseOpenDec = greedy $ do
 	ksemicolon
 	return $ OpenDec openType name
 
-parseDec :: Parse Char Dec
-parseDec = choice
+parseTemplatizableDec :: Parse Char TemplatizableDec
+parseTemplatizableDec = choice
 	[parseFuncDec
 	,parseStructDec
 	,parseGetterDec
 	,parseSetterDec
-	,parseMethodDec
+	,parseMethodDec]
+
+parseTemplatizedDec :: Parse Char Dec
+parseTemplatizedDec = greedy $ do
+	requirements <- fmap (fromMaybe []) $ greedy $ optional $ do
+		lits "given"
+		optional kspace
+		reqs <- parseProtocolReqs
+		optional kspace
+		return reqs
+	dec <- parseTemplatizableDec
+	return $ TemplatizedDec requirements dec
+
+parseDec :: Parse Char Dec
+parseDec = choice
+	[parseTemplatizedDec
 	,parseProtocolDec
 	,parseOpenDec]
