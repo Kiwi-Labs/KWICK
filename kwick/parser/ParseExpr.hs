@@ -2,9 +2,6 @@ module ParseExpr
 	(parseExpr)
 where
 
--- TODO: Possibly change '@' prefix precedence
---       from parsing @x.y as @(x.y) to (@x).y
-
 import Parse
 import Control.Applicative ((<$>))
 import Data.Maybe (fromMaybe)
