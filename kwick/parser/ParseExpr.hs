@@ -81,6 +81,13 @@ parseListLiteralExpr = greedy $ do
 	lit ']'
 	return $ ListLiteralExpr elems
 
+parseDereferenceExpr :: Parse Char Expr
+parseDereferenceExpr = greedy $ do
+	lit '@'
+	optional kspace
+	expr <- parseAtomicExpr
+	return $ DereferenceExpr expr
+
 parseAtomicExpr :: Parse Char Expr
 parseAtomicExpr = choice
 	[BindingExpr <$> parseUnresolvedIdent
@@ -88,6 +95,7 @@ parseAtomicExpr = choice
 	,parseRealLitExpr
 	,parseStringLitExpr
 	,parseParenthesizedExpr
+	,parseDereferenceExpr
 	,parseLongLambdaExpr
 	,parseShortLambdaExpr
 	,parseListLiteralExpr]
@@ -175,7 +183,6 @@ parseCoreExpr = choice
 	[parseNegationPrefix
 	,prefixParse RefExpr '!'
 	,prefixParse AddressOfExpr '&'
-	,prefixParse DereferenceExpr '@'
 	,parseSuffixExpr]
 
 data BinaryOperator
