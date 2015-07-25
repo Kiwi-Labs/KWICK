@@ -20,6 +20,12 @@ parseAccessModifier = greedy $ parseEither
 	(lits "publ" >> kspace >> return Public)
 	(return Private)
 
+parseExtendableAccessModifier :: Parse Char ExtendableAccess
+parseExtendableAccessModifier = greedy $ choice
+	[lits "publ" >> kspace >> return (NoExtend Public)
+	,lits "extd" >> kspace >> return Extend
+	,return (NoExtend Private)]
+
 data ComplexAccessModifier = PublicWithExclusions (Set.Set String) | PrivateComplex
 
 parseAccessExclusionOption :: Parse Char String
@@ -84,7 +90,7 @@ parseRetType = fmap (fromMaybe VoidType) $ greedy $ optional $ do
 
 parseFuncDec :: Parse Char Dec
 parseFuncDec = greedy $ do
-	access <- parseAccessModifier
+	access <- parseExtendableAccessModifier
 	lits "func"
 	kspace
 	name <- parseUnresolvedIdent
@@ -110,7 +116,7 @@ parseSpecialArg = greedy $ do
 
 parseGetterDec :: Parse Char Dec
 parseGetterDec = greedy $ do
-	access <- parseAccessModifier
+	access <- parseExtendableAccessModifier
 	lits "getter"
 	optional kspace
 	receiver <- parseSpecialArg
@@ -137,7 +143,7 @@ parseSetterMode = greedy $ do
 
 parseSetterDec :: Parse Char Dec
 parseSetterDec = greedy $ do
-	access <- parseAccessModifier
+	access <- parseExtendableAccessModifier
 	setterMode <- parseSetterMode
 	lits "setter"
 	optional kspace
@@ -157,7 +163,6 @@ parseSetterDec = greedy $ do
 
 parseMethodDec :: Parse Char Dec
 parseMethodDec = greedy $ do
-	access <- parseAccessModifier
 	lits "method"
 	kspace
 	name <- parseUnresolvedIdent
@@ -177,7 +182,7 @@ parseMethodDec = greedy $ do
 	retType <- parseRetType
 	optional kspace
 	body <- parseBody
-	return $ MethodDec access name dynArg mainArgs retType body
+	return $ MethodDec name dynArg mainArgs retType body
 
 parseStructCaseAccess :: Parse Char StructCaseAccess
 parseStructCaseAccess = greedy $ do

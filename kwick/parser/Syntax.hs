@@ -37,6 +37,7 @@ data ArgumentDef
 data LambdaArgumentDef = LambdaArgumentDef ArgumentPassMode LocalIdent (Maybe Type) deriving (Show)
 
 data Access = Public | Private deriving (Show)
+data ExtendableAccess = NoExtend Access | Extend deriving (Show)
 data GetterAccess = PublicGetter | PrivateGetter deriving (Show)
 data SetterAccess = PublicSetter | PrivateSetter deriving (Show)
 data ConstructorAccess = PublicConstructor | PrivateConstructor deriving (Show)
@@ -65,24 +66,24 @@ data OpenType
 	deriving (Show)
 
 data Dec
-	= FuncDec Access UnresolvedIdent [ArgumentDef] Type [Stat]
+	= FuncDec ExtendableAccess UnresolvedIdent [ArgumentDef] Type [Stat]
 	| StructDec StructMode LocalIdent StructCase
 	| GetterDec
-		Access
+		ExtendableAccess
 		UnresolvedIdent
 		SpecialArgument
 		[ArgumentDef]
 		Type
 		[Stat]
 	| SetterDec
-		Access
+		ExtendableAccess
 		SetterMode
 		UnresolvedIdent
 		SpecialArgument
 		[ArgumentDef]
 		SpecialArgument
 		[Stat]
-	| MethodDec Access UnresolvedIdent ArgumentDef [ArgumentDef] Type [Stat]
+	| MethodDec UnresolvedIdent ArgumentDef [ArgumentDef] Type [Stat]
 	| ProtocolDec Access LocalIdent [LocalIdent]  [ProtocolRequirement]
 	| OpenDec OpenType LocalIdent
 	deriving (Show)
