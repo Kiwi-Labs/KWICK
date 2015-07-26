@@ -1,12 +1,12 @@
-module ParseModule
+module Parser.ParseModule
 	(parseModule)
 where
 
-import Parse
-import Syntax
-import ParseSpace
-import ParseDec
-import ParseIdent
+import Parser.Parse
+import Parser.Syntax
+import Parser.ParseSpace
+import Parser.ParseDec
+import Parser.ParseIdent
 
 parseImportSome :: Parse Char ImportTermination
 parseImportSome = fmap ImportSome $ ksingleOrParenthesized parseLocalIdent

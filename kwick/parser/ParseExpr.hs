@@ -1,18 +1,18 @@
-module ParseExpr
+module Parser.ParseExpr
 	(parseExpr)
 where
 
-import Parse
+import Parser.Parse
 import Control.Applicative ((<$>))
 import Data.Maybe (fromMaybe)
-import qualified Precedence as Precedence
+import qualified Parser.Precedence as Precedence
 
-import Syntax
-import ParseIdent
-import ParseQuoted
-import ParseType
-import ParseSpace
-import {-# SOURCE #-} ParseStat
+import Parser.Syntax
+import Parser.ParseIdent
+import Parser.ParseQuoted
+import Parser.ParseType
+import Parser.ParseSpace
+import {-# SOURCE #-} Parser.ParseStat
 
 parseStringLitExpr :: Parse Char Expr
 parseStringLitExpr = greedy $ StringLitExpr <$> parseQuotedString '"'

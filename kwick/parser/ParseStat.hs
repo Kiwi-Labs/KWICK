@@ -1,4 +1,4 @@
-module ParseStat
+module Parser.ParseStat
 	(parseStat
 	,parseBody
 	,parseCompoundStat)
@@ -6,12 +6,12 @@ where
 
 import Data.Maybe (fromMaybe)
 
-import Syntax
-import Parse
-import ParseExpr
-import ParseIdent
-import ParseType
-import ParseSpace
+import Parser.Syntax
+import Parser.Parse
+import Parser.ParseExpr
+import Parser.ParseIdent
+import Parser.ParseType
+import Parser.ParseSpace
 
 parseBindMode :: Parse Char BindMode
 parseBindMode = choice

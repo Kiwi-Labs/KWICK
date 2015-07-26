@@ -1,12 +1,12 @@
-module ParseType
+module Parser.ParseType
 	(parseType
 	,parseArgDefInterface)
 where
 
-import Syntax
-import Parse
-import ParseIdent
-import ParseSpace
+import Parser.Syntax
+import Parser.Parse
+import Parser.ParseIdent
+import Parser.ParseSpace
 
 parseOpaqueType :: Parse Char [Type]
 parseOpaqueType = greedy $ do

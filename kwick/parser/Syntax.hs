@@ -1,5 +1,5 @@
 -- Everything in this module is exported
-module Syntax where
+module Parser.Syntax where
 
 data UnresolvedIdent
 	= UnresolvedIdent [LocalIdent]

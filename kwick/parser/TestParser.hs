@@ -1,7 +1,7 @@
-module Main where
+module Parser.TestParser where
 
-import Parse
-import ParseModule
+import Parser.Parse
+import Parser.ParseModule
 import Control.Monad (forever)
 import System.Environment (getArgs)
 

@@ -1,4 +1,4 @@
-module ParseDec
+module Parser.ParseDec
 	(parseDec)
 where
 
@@ -7,13 +7,13 @@ import qualified Data.Set as Set
 import Data.Char (isAlpha, isDigit)
 import Control.Monad (guard)
 
-import Syntax
-import Parse
-import ParseSpace
-import ParseIdent
-import ParseType
-import ParseStat
-import ParseExpr
+import Parser.Syntax
+import Parser.Parse
+import Parser.ParseSpace
+import Parser.ParseIdent
+import Parser.ParseType
+import Parser.ParseStat
+import Parser.ParseExpr
 
 parseAccessModifier :: Parse Char Access
 parseAccessModifier = greedy $ parseEither

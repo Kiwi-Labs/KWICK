@@ -1,4 +1,4 @@
-module ParseSpace
+module Parser.ParseSpace
 	(kspace
 	,kcommaSeparated
 	,kparenthesized
@@ -6,7 +6,7 @@ module ParseSpace
 	,ksemicolon)
 where
 
-import Parse
+import Parser.Parse
 import Data.Char (isSpace)
 
 parseComment :: Parse Char ()

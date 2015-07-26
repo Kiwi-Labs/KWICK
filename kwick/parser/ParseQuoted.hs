@@ -1,8 +1,8 @@
-module ParseQuoted
+module Parser.ParseQuoted
 	(parseQuotedString)
 where
 
-import Parse
+import Parser.Parse
 import Control.Monad (guard)
 import qualified Data.Map as Map
 

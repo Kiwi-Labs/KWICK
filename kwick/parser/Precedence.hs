@@ -1,6 +1,6 @@
 {-# LANGUAGE ExistentialQuantification, ScopedTypeVariables #-}
 
-module Precedence
+module Parser.Precedence
 	(Expr (..)
 	,Grouping (..)
 	,precedenceGroup)

@@ -1,4 +1,4 @@
-module ParseIdent
+module Parser.ParseIdent
 	(parseUnresolvedIdent
 	,parseLocalIdent)
 where
@@ -8,9 +8,9 @@ import Data.Char (isAlpha, isAlphaNum)
 import Control.Monad (guard)
 import Control.Applicative ((<$>), (<*>))
 
-import Syntax
-import Parse
-import ParseQuoted
+import Parser.Syntax
+import Parser.Parse
+import Parser.ParseQuoted
 
 reservedWords :: Set.Set String
 reservedWords = Set.fromList

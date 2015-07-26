@@ -1,4 +1,4 @@
-module Parse
+module Parser.Parse
 	(ParseError
 	,Parse
 	,parseFailure
